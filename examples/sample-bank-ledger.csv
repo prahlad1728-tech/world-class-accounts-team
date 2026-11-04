@@ -1,0 +1,8 @@
+date,voucher_no,particulars,debit,credit
+2026-10-01,OB,Opening balance,250000.00,
+2026-10-02,RCPT-101,Sample Traders,45000.00,
+2026-10-03,PAY-201,Demo Supplies,,18500.00
+2026-10-07,RCPT-102,Example Retail,12000.00,
+2026-10-09,PAY-202,Test Logistics,,60000.00
+2026-10-14,PAY-203,Fictional Stationers (cheque 000124 not yet presented),,7800.00
+2026-10-15,RCPT-103,Sample Traders,30000.00,

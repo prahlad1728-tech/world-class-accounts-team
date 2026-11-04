@@ -1,0 +1,9 @@
+date,description,reference,debit,credit,balance
+2026-10-01,Opening balance,,,,250000.00
+2026-10-02,NEFT from Sample Traders,UTR1001,,45000.00,295000.00
+2026-10-03,Cheque 000123 Demo Supplies,CHQ000123,18500.00,,276500.00
+2026-10-05,Bank charges,CHG-OCT,590.00,,275910.00
+2026-10-07,UPI from Example Retail,UPI778899,,12000.00,287910.00
+2026-10-09,RTGS to Test Logistics,UTR2002,60000.00,,227910.00
+2026-10-12,Interest credit,INT-OCT,,1250.00,229160.00
+2026-10-15,NEFT from Sample Traders,UTR1003,,30000.00,259160.00
