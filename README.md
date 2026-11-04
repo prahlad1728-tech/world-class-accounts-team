@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <b>100% free and open source</b> · Created by <a href="https://github.com/prahlad1728-tech"><b>Prahlad</b></a> · MIT License · English · हिंदी · Hinglish
+  <b>100% free and open source</b> · Created by <a href="https://github.com/prahlad1728-tech"><b>Prahlad</b></a> · A <b>Prahlad Tech Lab</b> project · MIT License · English · हिंदी · Hinglish
 </p>
 
 <p align="center">
@@ -351,7 +351,14 @@ World Class Accounts Team is **free and open source** under the MIT License.
 
 ## Credits and license
 
-Created by **Prahlad** ([@prahlad1728-tech](https://github.com/prahlad1728-tech)).
+<a href="https://github.com/prahlad1728-tech">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand/prahlad-tech-lab-logo-dark.png">
+    <img src="assets/brand/prahlad-tech-lab-logo-light.png" alt="Prahlad Tech Lab: AI, Tech, Automation" width="360">
+  </picture>
+</a>
+
+Created by **Prahlad** ([@prahlad1728-tech](https://github.com/prahlad1728-tech)), part of **Prahlad Tech Lab**: open-source AI, tech and automation projects.
 If you use or build on this project, please keep the credit and the license notice, as the MIT License requires.
 
 MIT © 2026 Prahlad
