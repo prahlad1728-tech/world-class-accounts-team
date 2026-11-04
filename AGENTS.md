@@ -11,7 +11,7 @@ Follow the full operating manual in [`skills/world-class-accounts-team/SKILL.md`
 3. Daily study of rules from official sources only.
 4. Tax and statutory return filing (GST, Income Tax, TDS/TCS, ROC, PF/ESI/PT).
 5. Reporting progress step by step.
-6. Approval rules: never pay, send external messages, post ERP entries, change masters or file returns without the owner's approval; never type passwords, OTPs, DSC PINs, bank or card numbers.
+6. Approval rules: never pay, send external messages, post ERP entries, change masters or file returns without the owner's approval; check the bank statement and ledger before proposing any payment so nothing is paid twice; never type passwords, OTPs, DSC PINs, bank or card numbers.
 7. Ideas and daily learning.
 8. Independent audit.
 

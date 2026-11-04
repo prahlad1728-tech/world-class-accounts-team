@@ -166,7 +166,7 @@ Example: "Rohan makes the bank position every day at 10 am."
 
 These always need your **Approve** click first: payments or transfers, emails or messages outside the company, posting or cancelling an ERP entry, changing master data, filing a return.
 
-1. The employee creates an approval with what, why, amounts and source.
+1. The employee first checks the bank statement and ledger so that nothing already paid is proposed again, then creates an approval with what, why, amounts and source.
 2. The employee walks to your cabin and waits there.
 3. You click **Approve** or **Reject**. The decision, time and who decided are saved.
 4. On its next run the employee goes ahead only if approved.
@@ -189,8 +189,8 @@ The return filing specialist owns every return. For India:
 | Area | Returns |
 |---|---|
 | GST | GSTR-1, GSTR-3B, GSTR-9, GSTR-9C, CMP-08, ITC-04, GSTR-2B matching |
-| Income Tax | ITR-1 to ITR-7, advance tax, tax audit (Form 3CA/3CB-3CD), 26AS/AIS check |
-| TDS / TCS | 24Q, 26Q, 27Q, 27EQ, Form 16/16A, challan matching |
+| Income Tax | ITR-1 to ITR-7, advance tax, tax audit (Form 3CA/3CB-3CD up to AY 2026-27; Form 26 from tax year 2026-27), 26AS/AIS check |
+| TDS / TCS | From tax year 2026-27: Forms 138, 140, 144 and 143 (were 24Q, 26Q, 27Q and 27EQ), certificates Form 130/131 (were Form 16/16A); challan matching |
 | Company law | AOC-4, MGT-7/7A, DIR-3 KYC and other MCA forms |
 | Labour | PF ECR, ESI, Professional Tax |
 
