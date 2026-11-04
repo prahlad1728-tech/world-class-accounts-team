@@ -1,0 +1,13 @@
+{
+  "name": "world-class-accounts-team",
+  "owner": {
+    "name": "Prahlad"
+  },
+  "plugins": [
+    {
+      "name": "world-class-accounts-team",
+      "source": "./",
+      "description": "AI accounts team that studies rules daily and works live in an animated office."
+    }
+  ]
+}
