@@ -25,6 +25,21 @@
 
 🧪 Try it in 1 minute: open `office/ai-office.html` in any browser and click **Watch demo**. Full testing guide with sample data: [TESTING.md](TESTING.md)
 
+## Quick start
+
+| Where | How |
+|---|---|
+| **Just look** | Download this repo, open `office/ai-office.html` in your browser and click **Watch demo** |
+| **Claude Code** | `/plugin marketplace add prahlad1728-tech/world-class-accounts-team`, then `/plugin install world-class-accounts-team@world-class-accounts-team` |
+| **Claude app** | Download [world-class-accounts-team-skill.zip](https://github.com/prahlad1728-tech/world-class-accounts-team/releases/latest/download/world-class-accounts-team-skill.zip) and upload it in the app's skills settings |
+| **ChatGPT, Gemini, Copilot, Cursor and others** | Paste [`SKILL.md`](skills/world-class-accounts-team/SKILL.md) into the instructions, or let the tool read `AGENTS.md` from this repo |
+
+Then follow [Setup, step by step](#setup-step-by-step) to publish your live office and give the first job.
+
+**Hinglish mein:** Sirf dekhna hai to `office/ai-office.html` kholo aur **Watch demo** dabao. Claude app mein use karna hai to upar wala skill zip download karke skills settings mein upload karo.
+
+⭐ If this project helps you, please star the repo so more accountants can find it.
+
 ## Contents
 
 1. [What it is](#what-it-is)
@@ -330,7 +345,7 @@ World Class Accounts Team is **free and open source** under the MIT License.
 - **Change it:** rename employees, add roles, translate it, connect it to other tools.
 - **Share it and build on it:** fork it, improve it, even use it in commercial work.
 - **Only condition:** keep the copyright notice and the license text (credit to Prahlad) in every copy or modified version.
-- **Contribute:** issues, ideas and pull requests are welcome, for example adapters for other AI tools or databases, more languages, or rules for other countries.
+- **Contribute:** issues, ideas and pull requests are welcome, for example adapters for other AI tools or databases, more languages, or rules for other countries. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [good first issues](https://github.com/prahlad1728-tech/world-class-accounts-team/labels/good%20first%20issue).
 
 **Hinglish mein:** Ye project bilkul free aur open source hai. Koi bhi ise use kar sakta hai, badal sakta hai, aage share kar sakta hai, bas credit (Prahlad ka naam) aur license saath rakhna hoga. Sudhaar ke ideas aur contributions ka swagat hai.
 
