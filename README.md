@@ -12,6 +12,11 @@
   Created by <a href="https://github.com/prahlad1728-tech"><b>Prahlad</b></a> · MIT License · English · हिंदी · Hinglish
 </p>
 
+<p align="center">
+  <b>Works with:</b> Claude · Claude Code · ChatGPT · OpenAI Codex · Google Gemini · GitHub Copilot · Microsoft Copilot · Cursor · Windsurf · Perplexity · Grok · DeepSeek · Mistral · Llama · Qwen<br>
+  <sub>Live animated office: Claude out of the box; other AIs with your own database. <a href="#does-it-work-with-other-ai-tools">Details</a></sub>
+</p>
+
 ---
 
 ![World Class Accounts Team demo](docs/video/demo.gif)
@@ -260,15 +265,33 @@ Access rules: anyone the page is shared with can view; only editors (you) can wr
 
 ## Does it work with other AI tools?
 
-| Tool | Skill (the rulebook) | Live office page | Notes |
+**Short answer:** the rulebook works with every major AI; the animated live office works out of the box only on Claude.
+
+The project has two parts:
+
+- **The rulebook** (`skills/world-class-accounts-team/SKILL.md`, also linked from `AGENTS.md` and `GEMINI.md`): plain Markdown instructions for expert work, approvals, daily rules study, tax return filing, ideas and learning. Any AI that can read instructions can follow it.
+- **The live office** (`office/ai-office.html`): runs on claude.ai Artifacts and their shared database, so it works directly only with Claude. Other AIs can use it after you connect the page to your own database (see below).
+
+| AI tool | Rulebook (skill) | Live office | How to use |
 |---|---|---|---|
-| **Claude app (claude.ai, desktop, mobile)** | Yes | Yes | Full experience: live office, approvals, scheduled tasks, browser and connectors |
-| **Claude Code** | Yes, install as a plugin | Yes, through a claude.ai Artifact | Same skill; good for developers and automation |
-| **ChatGPT / Codex, Gemini, Cursor, other AI agents** | Partly: `SKILL.md` is plain Markdown, so any AI can read and follow the rules (expert standards, approvals, rules study, return filing, learning) | Not out of the box | The office page runs on claude.ai Artifacts and its shared database. Other tools cannot write to it, so the characters will not move |
+| **Claude** (claude.ai, desktop, mobile, Cowork) | ✅ Full | ✅ Full | Add the skill, publish the office page, give jobs |
+| **Claude Code** | ✅ Full | ✅ Full | Install as a plugin (see Setup) |
+| **OpenAI ChatGPT** (Custom GPTs, Projects) | ✅ | ⚙️ With your own backend | Paste `SKILL.md` into the GPT's or Project's instructions |
+| **OpenAI Codex** (CLI, cloud) | ✅ | ⚙️ With your own backend | Reads `AGENTS.md` in the repo automatically |
+| **Google Gemini** (Gems, Gemini CLI) | ✅ | ⚙️ With your own backend | Gemini CLI reads `GEMINI.md`; for Gems paste `SKILL.md` into the instructions |
+| **GitHub Copilot** (agent mode, coding agent) | ✅ | ⚙️ With your own backend | Reads `AGENTS.md` |
+| **Microsoft Copilot** (Copilot Studio agents) | ✅ | ⚙️ With your own backend | Paste `SKILL.md` into the agent's instructions |
+| **Cursor, Windsurf, Cline, Roo Code, Aider** | ✅ | ⚙️ With your own backend | Read `AGENTS.md` or add `SKILL.md` as a project rule |
+| **Perplexity, Grok, DeepSeek, Mistral (Le Chat), Meta AI, Qwen** | ✅ | ⚙️ With your own backend | Paste `SKILL.md` into a space, project or system prompt |
+| **Open models** (Llama, Mistral, Qwen, DeepSeek via Ollama, LM Studio, etc.) | ✅ | ⚙️ With your own backend | Use `SKILL.md` as the system prompt in your agent framework (LangChain, CrewAI, AutoGen, n8n and similar) |
 
-**To use the live office with another AI tool,** host `office/ai-office.html` yourself and replace its database calls (the `claude.use("db")` part) with your own backend, such as Firebase or Supabase, using the same collections listed in the [data model](#data-model-for-developers). Then point the other AI's tools at that backend. Contributions that add such adapters are welcome.
+✅ works directly · ⚙️ works after you connect the office page to your own database
 
-**Hinglish mein:** Skill file (niyam aur kaam ka tareeka) koi bhi AI padh kar follow kar sakta hai, jaise ChatGPT/Codex ya Gemini. Lekin live office page abhi sirf Claude par chalta hai, kyunki wo claude.ai ke Artifact database par bana hai. Dusre AI ke saath live office chahiye to page ko apne server par chala kar database badalna padega.
+What each AI can actually do (open your ERP, read files, send drafts, run on a schedule) depends on the tools and connectors that AI has in your setup. The rulebook tells it how to work; the tools decide what it can reach.
+
+**To use the live office with another AI,** host `office/ai-office.html` yourself and replace its database calls (the `claude.use("db")` part) with your own backend, such as Firebase or Supabase, using the same collections listed in the [data model](#data-model-for-developers). Then give the other AI a tool that writes to that backend. Contributions that add such adapters are welcome.
+
+**Hinglish mein:** Niyam aur kaam ka tareeka (skill) har bade AI ke saath chalta hai: Claude, ChatGPT, Codex, Gemini, Copilot, Cursor, Perplexity, Grok, DeepSeek, Llama aur baaki. Animated live office abhi seedha sirf Claude par chalta hai. Dusre AI ke saath live office chahiye to page ko apne database (jaise Firebase ya Supabase) se jodna padega.
 
 ## FAQ
 
@@ -293,8 +316,8 @@ No. The demo is shown only on your screen and saves nothing.
 **Can my team see the office? / Meri team office dekh sakti hai?**
 Yes, share the page from claude.ai. They can watch, but only you can change anything.
 
-**Does it work with ChatGPT, Codex or Gemini? / Kya ye dusre AI par bhi chalega?**
-The rulebook (skill) works with any AI that can read Markdown. The live office works on Claude; for other tools you need to connect the page to your own database. Details: [Does it work with other AI tools?](#does-it-work-with-other-ai-tools)
+**Does it work with ChatGPT, Codex, Gemini, Copilot or other AI? / Kya ye dusre AI par bhi chalega?**
+Yes, the rulebook works with all of them (Claude, ChatGPT, Codex, Gemini, Copilot, Cursor, Perplexity, Grok, DeepSeek, Llama and more). The animated live office works directly on Claude; with other AIs you connect the page to your own database. Details: [Does it work with other AI tools?](#does-it-work-with-other-ai-tools)
 
 ## Credits and license
 
