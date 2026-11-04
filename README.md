@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Created by <a href="https://github.com/prahlad1728-tech"><b>Prahlad</b></a> · MIT License · English · हिंदी · Hinglish
+  <b>100% free and open source</b> · Created by <a href="https://github.com/prahlad1728-tech"><b>Prahlad</b></a> · MIT License · English · हिंदी · Hinglish
 </p>
 
 <p align="center">
@@ -43,7 +43,8 @@
 16. [Safety and privacy](#safety-and-privacy)
 17. [Does it work with other AI tools?](#does-it-work-with-other-ai-tools)
 18. [FAQ](#faq)
-19. [Credits and license](#credits-and-license)
+19. [Open source](#open-source)
+20. [Credits and license](#credits-and-license)
 
 ---
 
@@ -318,6 +319,18 @@ Yes, share the page from claude.ai. They can watch, but only you can change anyt
 
 **Does it work with ChatGPT, Codex, Gemini, Copilot or other AI? / Kya ye dusre AI par bhi chalega?**
 Yes, the rulebook works with all of them (Claude, ChatGPT, Codex, Gemini, Copilot, Cursor, Perplexity, Grok, DeepSeek, Llama and more). The animated live office works directly on Claude; with other AIs you connect the page to your own database. Details: [Does it work with other AI tools?](#does-it-work-with-other-ai-tools)
+
+## Open source
+
+World Class Accounts Team is **free and open source** under the MIT License.
+
+- **Use it free:** for yourself, your company or your clients, at no cost.
+- **Change it:** rename employees, add roles, translate it, connect it to other tools.
+- **Share it and build on it:** fork it, improve it, even use it in commercial work.
+- **Only condition:** keep the copyright notice and the license text (credit to Prahlad) in every copy or modified version.
+- **Contribute:** issues, ideas and pull requests are welcome, for example adapters for other AI tools or databases, more languages, or rules for other countries.
+
+**Hinglish mein:** Ye project bilkul free aur open source hai. Koi bhi ise use kar sakta hai, badal sakta hai, aage share kar sakta hai, bas credit (Prahlad ka naam) aur license saath rakhna hoga. Sudhaar ke ideas aur contributions ka swagat hai.
 
 ## Credits and license
 
