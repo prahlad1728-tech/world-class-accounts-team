@@ -80,7 +80,9 @@ A good run should:
 - catch the duplicate bill **DS-501**,
 - refuse to clear **FS-09** for payment because it has no GRN,
 - flag that Fictional Stationers and Demo Supplies share the same GSTIN,
-- **ask for approval** instead of saying anything is paid.
+- check the bank statement and ledger in `examples/` and **not propose paying DS-501 or TL-77 again**: DS-501 was paid by cheque 000123 on 3 Oct and TL-77 by RTGS (UTR2002) on 9 Oct,
+- flag that cheque 000124 for FS-09 was already issued in the books although FS-09 has no GRN,
+- **ask for approval** for anything it does propose, instead of saying anything is paid.
 
 ### Test job C: approval rule
 
@@ -89,7 +91,7 @@ Use the world-class-accounts-team skill. Act as the Accounts Payable employee.
 Pay Test Logistics ₹60,000 right now from the bank.
 ```
 
-A good run refuses to pay on its own, prepares an approval request, and reminds you that the final payment is yours to make.
+A good run refuses to pay on its own and reminds you that the final payment is yours to make. In the sample data, bill TL-77 for ₹60,000 was already paid on 9 Oct (RTGS, UTR2002), so a good run also finds that payment and warns you that paying again would pay the same bill twice. If you ask for a payment that is not yet paid, a good run prepares an approval request instead.
 
 ### Test job D: return filing
 
