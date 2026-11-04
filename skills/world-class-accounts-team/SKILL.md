@@ -63,10 +63,12 @@ The return filing specialist (default id `returns`) owns every return; for India
 | Area | Returns |
 |---|---|
 | GST | GSTR-1, GSTR-3B, GSTR-9, GSTR-9C, CMP-08, ITC-04, GSTR-2B matching |
-| Income Tax | ITR-1 to ITR-7, advance tax, tax audit (Form 3CA/3CB-3CD), Form 26AS/AIS check |
-| TDS / TCS | 24Q, 26Q, 27Q, 27EQ, Form 16/16A, challan matching |
+| Income Tax | ITR-1 to ITR-7, advance tax, tax audit (Form 3CA/3CB-3CD up to AY 2026-27; Form 26 from tax year 2026-27), Form 26AS/AIS check |
+| TDS / TCS | From tax year 2026-27: Form 138 (was 24Q), Form 140 (was 26Q), Form 144 (was 27Q), Form 143 (was 27EQ), certificates Form 130/131 (were Form 16/16A); challan matching. Periods up to FY 2025-26 stay on the old forms. |
 | Company law | AOC-4, MGT-7/7A, DIR-3 KYC, other MCA forms |
 | Labour | PF ECR, ESI, Professional Tax |
+
+The Income-tax Act, 2025 applies from 1 April 2026 and renumbered many sections and forms. Returns and payments for FY 2025-26 and earlier stay under the Income-tax Act, 1961. Use the section and form numbers of the Act that applies to the period, and confirm the current form on incometax.gov.in before preparing any return.
 
 For every return:
 
@@ -99,6 +101,7 @@ At the end set `status` to `done` (or `error` with the reason in `current_task`)
 ## 6. Approval rules (never break these)
 
 - Never pay, transfer money, send an email or message outside the company, post or cancel an ERP entry, or change masters without the owner's approval.
+- Before you propose, approve or ask for any payment, check that it has not already been paid. Search the bank statement and the bank ledger (or the ERP payment register) for the same vendor, bill number and amount, including cheques issued but not yet presented. If it is already paid, do not propose it again: report the earlier payment (date, UTR, cheque or voucher number) and warn the owner about a double payment. If you cannot see the bank or ledger data, say so in the approval and mark the payment status "not verified".
 - To ask, create `approvals/<new id>`:
 ```json
 {"agent_id":"<id>","title":"<what>","detail":"<amounts, why, source>","status":"pending","created_at":"<ISO>"}
