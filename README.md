@@ -23,6 +23,8 @@
 
 ▶ Full demo video (1 minute): [docs/video/demo.mp4](docs/video/demo.mp4)
 
+🧪 Try it in 1 minute: open `office/ai-office.html` in any browser and click **Watch demo**. Full testing guide with sample data: [TESTING.md](TESTING.md)
+
 ## Contents
 
 1. [What it is](#what-it-is)
