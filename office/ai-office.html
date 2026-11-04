@@ -1,0 +1,856 @@
+<title>World Class Accounts Team</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a top-down office floor (cabins, desks, pantry) where each AI employee is a person who sits, types, walks and talks; side panel for the selected employee, approvals and the live log */
+:root{
+  --bg:#eef1ec; --surface:#ffffff; --surface-2:#e8ece6; --fg:#17201b; --muted:#5b685f; --line:#d3dad1;
+  --accent:#1f6b4a; --accent-soft:#dcebe2;
+  --floor:#e3e6df; --floor-line:#d7dbd2; --wall:#9fb3c2; --cabin:#e9f0f3; --desk:#c99a68; --desk-edge:#a67a4c;
+  --chair:#3d4552; --mon-frame:#2b3038; --screen-off:#48515c; --screen-on:#cfe9ff; --glow:#7cc4ff; --shadow:rgba(0,0,0,.18); --plant:#4f8a5b; --pot:#b8714b;
+  --ok:#1f7a4d; --ok-bg:#ddf0e4; --work:#1d5fa8; --work-bg:#dde9f7; --warn:#a15c00; --warn-bg:#fbecd2;
+  --err:#b3261e; --err-bg:#f8dedb; --idle:#66706a; --idle-bg:#e4e8e3;
+  --f-display:"Familjen Grotesk","Noto Sans Devanagari","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Source Sans 3","Noto Sans Devanagari","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1512; --surface:#18201c; --surface-2:#1f2924; --fg:#e4ebe6; --muted:#98a69d; --line:#2c3832;
+  --accent:#5cc493; --accent-soft:#1d3329;
+  --floor:#1d2420; --floor-line:#242c27; --wall:#4d6576; --cabin:#1b2a31; --desk:#8a6643; --desk-edge:#6a4c30;
+  --chair:#0d1013; --mon-frame:#0b0d10; --screen-off:#2b323a; --screen-on:#bfe2ff; --glow:#4aa8ff; --shadow:rgba(0,0,0,.45); --plant:#4c8a5a; --pot:#8f5638;
+  --ok:#6fd39f; --ok-bg:#183327; --work:#7fb4f0; --work-bg:#172a40; --warn:#f0b35c; --warn-bg:#3a2a12;
+  --err:#f08a80; --err-bg:#3d1b18; --idle:#9aa59e; --idle-bg:#252e29; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1512; --surface:#18201c; --surface-2:#1f2924; --fg:#e4ebe6; --muted:#98a69d; --line:#2c3832;
+  --accent:#5cc493; --accent-soft:#1d3329;
+  --floor:#1d2420; --floor-line:#242c27; --wall:#4d6576; --cabin:#1b2a31; --desk:#8a6643; --desk-edge:#6a4c30;
+  --chair:#0d1013; --mon-frame:#0b0d10; --screen-off:#2b323a; --screen-on:#bfe2ff; --glow:#4aa8ff; --shadow:rgba(0,0,0,.45); --plant:#4c8a5a; --pot:#8f5638;
+  --ok:#6fd39f; --ok-bg:#183327; --work:#7fb4f0; --work-bg:#172a40; --warn:#f0b35c; --warn-bg:#3a2a12;
+  --err:#f08a80; --err-bg:#3d1b18; --idle:#9aa59e; --idle-bg:#252e29; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1400px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:16px}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,4vw,36px);line-height:1.1;margin:4px 0 0}
+h2{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0}
+.hright{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.live{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--idle)}
+.live.on .dot{background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+button{font:600 13.5px var(--f-body);border-radius:8px;padding:7px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+button.pri{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,.plate:focus-visible,.ch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:baseline;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:13px;color:var(--muted)}
+.chip b{font-family:var(--f-display);font-size:16px;color:var(--fg);font-variant-numeric:tabular-nums}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:1100px){.main{grid-template-columns:minmax(0,1fr)}}
+.officeBox{min-width:0;display:grid;gap:8px}
+.office{position:relative;overflow-x:auto;overflow-y:hidden;border:1px solid var(--line);border-radius:12px;background:var(--floor)}
+.sizer{position:relative}
+.stage{position:absolute;left:0;top:0;width:1000px;height:640px;transform-origin:0 0;
+  background-image:linear-gradient(var(--floor-line) 1px,transparent 1px),linear-gradient(90deg,var(--floor-line) 1px,transparent 1px);background-size:40px 40px}
+.banner{font-size:13px;background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:6px 12px;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.swipe{display:none!important}
+@media (max-width:700px){.swipe{display:inline!important;font-weight:600}}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* rooms & furniture */
+.room{position:absolute;border:3px solid var(--wall);background:var(--cabin);border-radius:6px}
+.door{position:absolute;height:5px;background:var(--floor)}
+.rlabel{position:absolute;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.desk{position:absolute;width:124px;height:44px;background:var(--desk);border-radius:6px;box-shadow:0 4px 0 var(--desk-edge)}
+.desk.big{width:160px}
+.chair{position:absolute;width:38px;height:34px;border-radius:12px 12px 5px 5px;background:var(--chair)}
+.mon{position:absolute;width:48px;height:30px;border-radius:4px;background:var(--screen-off);border:3px solid var(--mon-frame);overflow:hidden;transition:background .3s,box-shadow .3s}
+.mon::after{content:"";position:absolute;left:3px;right:3px;bottom:4px;height:3px;border-radius:2px;background:color-mix(in srgb,var(--fg) 12%,transparent)}
+.mon.on{background:var(--screen-on);box-shadow:0 0 16px var(--glow)}
+.mon i{position:absolute;left:3px;bottom:4px;height:3px;border-radius:2px;background:var(--work);z-index:1;transition:width .5s}
+.mon.on b{position:absolute;left:4px;top:3px;width:60%;height:2px;background:color-mix(in srgb,var(--work) 55%,transparent);box-shadow:0 5px 0 color-mix(in srgb,var(--work) 40%,transparent),0 10px 0 color-mix(in srgb,var(--work) 30%,transparent)}
+.plate{position:absolute;width:160px;display:grid;justify-items:center;gap:0;cursor:pointer;border-radius:8px;padding:2px 4px}
+.plate:hover{background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.plate .n{font-family:var(--f-display);font-weight:700;font-size:14.5px;line-height:1.15}
+.plate .r{font-size:11.5px;color:var(--muted);line-height:1.2;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plate .s{font-family:var(--f-mono);font-size:10.5px;padding:0 7px;border-radius:99px;margin-top:2px}
+.plate.sel .n{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.plant{position:absolute;width:34px;height:34px;border-radius:50%;background:var(--plant);box-shadow:inset -5px -5px 0 rgba(0,0,0,.15)}
+.plant::after{content:"";position:absolute;left:9px;top:24px;width:16px;height:14px;border-radius:0 0 5px 5px;background:var(--pot)}
+.counter{position:absolute;background:var(--desk);box-shadow:0 4px 0 var(--desk-edge);border-radius:5px}
+.machine{position:absolute;width:24px;height:30px;background:var(--mon-frame);border-radius:4px}
+.cooler{position:absolute;width:22px;height:40px;border-radius:6px 6px 3px 3px;background:var(--screen-on);border:2px solid var(--wall)}
+.table{position:absolute;border-radius:50%;background:var(--desk);box-shadow:0 4px 0 var(--desk-edge)}
+.filing{position:absolute;width:30px;height:46px;background:var(--wall);border-radius:3px;box-shadow:inset 0 15px 0 rgba(0,0,0,.08),inset 0 30px 0 rgba(0,0,0,.05)}
+
+/* people */
+.ch{position:absolute;left:0;top:0;width:44px;height:72px;cursor:pointer;will-change:transform}
+.ch::after{content:"";position:absolute;left:8px;bottom:-3px;width:28px;height:7px;border-radius:50%;background:var(--shadow);z-index:-1}
+.ch.sit::after{display:none}
+.ch .fl{width:44px;height:72px}
+.ch.left .fl{transform:scaleX(-1)}
+.ch svg{display:block;overflow:visible}
+.leg,.arm{transform-box:fill-box;transform-origin:50% 0}
+.ch.walking .leg.l{animation:legA .36s infinite alternate ease-in-out}
+.ch.walking .leg.r{animation:legB .36s infinite alternate ease-in-out}
+.ch.walking .arm.l{animation:legB .36s infinite alternate ease-in-out}
+.ch.walking .arm.r{animation:legA .36s infinite alternate ease-in-out}
+.ch.walking .body{animation:bob .18s infinite alternate}
+.ch.sit.working .arm{animation:type .22s infinite alternate}
+.ch.sit.working .arm.r{animation-delay:.11s}
+.ch.sit:not(.working) .body{animation:breathe 3.5s infinite ease-in-out}
+@keyframes legA{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+@keyframes legB{from{transform:rotate(22deg)}to{transform:rotate(-22deg)}}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+@keyframes type{from{transform:rotate(-8deg) translateY(0)}to{transform:rotate(-14deg) translateY(-2px)}}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+.nm{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font:700 11.5px var(--f-body);background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:99px;padding:0 7px;white-space:nowrap}
+.ch.sit .nm{display:none}
+.badge[hidden]{display:none}
+.badge{position:absolute;top:-6px;right:-8px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--f-mono);border:2px solid var(--surface)}
+.badge.working{background:var(--work);color:var(--surface);animation:blink 1.2s infinite}
+.badge.needs_approval{background:var(--warn);color:var(--surface)}
+.badge.error{background:var(--err);color:var(--surface)}
+.badge.done{background:var(--ok);color:var(--surface)}
+@keyframes blink{50%{opacity:.55}}
+.bubble{position:absolute;bottom:86px;left:50%;transform:translateX(-50%);width:max-content;max-width:210px;background:var(--surface);color:var(--fg);border:1.5px solid var(--fg);border-radius:12px;padding:6px 10px;font-size:13px;line-height:1.3;box-shadow:0 4px 12px var(--shadow);animation:pop .25s ease-out}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:var(--surface);border-right:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:translateX(-50%) rotate(45deg)}
+.bubble .to{display:block;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.bubble.r{left:6px;transform:none;animation:pop2 .25s ease-out}.bubble.r::after{left:14px}
+.bubble.l{left:auto;right:6px;transform:none;animation:pop2 .25s ease-out}.bubble.l::after{left:auto;right:4px;transform:rotate(45deg)}
+@keyframes pop2{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes pop{from{transform:translateX(-50%) scale(.6);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.ch *{animation:none!important}.live.on .dot,.badge{animation:none}}
+
+/* side panel */
+aside{display:grid;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;min-width:0}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sechead small{color:var(--muted);font-size:12.5px}
+.who{display:flex;gap:12px;align-items:center}
+.av{flex:none;width:48px;height:56px;display:grid;place-items:end center;background:var(--surface-2);border-radius:10px;overflow:hidden}
+.pill{font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.s-working{color:var(--work);background:var(--work-bg)}.s-done{color:var(--ok);background:var(--ok-bg)}
+.s-needs_approval{color:var(--warn);background:var(--warn-bg)}.s-error{color:var(--err);background:var(--err-bg)}
+.s-idle,.s-onboarding{color:var(--idle);background:var(--idle-bg)}
+.task{font-size:14px;background:var(--surface-2);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere}
+.task em{font-style:normal;color:var(--muted)}
+.prog{display:grid;gap:5px}
+.bar{height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.pl{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:13px}
+.steps li{display:flex;gap:7px;align-items:baseline}
+.steps .k{font-family:var(--f-mono);font-size:11px;width:14px;flex:none;color:var(--muted)}
+.steps .done{color:var(--muted);text-decoration:line-through}
+.steps .now{font-weight:600;color:var(--work)}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+details summary{cursor:pointer;font-size:13px;color:var(--accent);font-weight:600}
+details ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:grid;gap:3px}
+.feed{list-style:none;margin:0;padding:0;display:grid;max-height:380px;overflow:auto}
+.feed li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1px 10px;padding:8px 0;border-top:1px solid var(--line)}
+.feed li:first-child{border-top:0}
+.feed .t{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);padding-top:2px}
+.feed .w{font-weight:600;font-size:13.5px}
+.feed .w small{font-weight:400;color:var(--muted)}
+.feed .msg{grid-column:2;font-size:13.5px;overflow-wrap:anywhere}
+.feed .demo{font-family:var(--f-mono);font-size:10px;color:var(--warn);background:var(--warn-bg);border-radius:4px;padding:0 4px;margin-left:4px}
+.lv-warn .w{color:var(--warn)}.lv-error .w{color:var(--err)}.lv-success .w{color:var(--ok)}
+.appr{border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:8px;padding:10px;display:grid;gap:6px}
+.appr p{margin:0;font-size:13.5px;overflow-wrap:anywhere}
+.appr .btns{display:flex;gap:8px}
+.empty{font-size:13.5px;color:var(--muted);margin:0}
+.brand{display:flex;align-items:center;gap:8px}
+.brand .logo{width:22px;height:22px;flex:none}
+.credit{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.credit .logo{width:20px;height:20px;flex:none}
+.credit a{color:var(--accent);font-weight:600}
+.langsw{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.langsw button{border:0;border-radius:0;padding:7px 11px;font-weight:600;color:var(--muted);background:transparent}
+.langsw button+button{border-left:1px solid var(--line)}
+.langsw button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+:root[lang="hi"] .rlabel,:root[lang="hi"] .sub,:root[lang="hi"] .eyebrow,:root[lang="hi"] .plate .s,:root[lang="hi"] .meta,:root[lang="hi"] .pl,:root[lang="hi"] .pill,:root[lang="hi"] .live,:root[lang="hi"] .edcard legend{font-family:var(--f-body);letter-spacing:0;text-transform:none}
+:root[lang="hi"] .rlabel{font-size:12px;font-weight:600}
+#editor{gap:14px}
+.edgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.edcard{border:1px solid var(--line);border-radius:10px;padding:12px;margin:0;display:grid;gap:8px;min-width:0}
+.edcard legend{font-family:var(--f-mono);font-size:11px;color:var(--muted);padding:0 4px}
+.fld{display:grid;gap:3px;font-size:12.5px;color:var(--muted);font-weight:600}
+.fld input,.fld textarea,.fld select{font:400 14px var(--f-body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;width:100%;min-width:0}
+.fld textarea{resize:vertical;min-height:84px}
+.fld input:focus-visible,.fld textarea:focus-visible,.fld select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.edbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sub{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.mini{list-style:none;margin:0;padding:0;display:grid;gap:5px;font-size:13px}
+.mini li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;overflow-wrap:anywhere}
+.mini .t{font-family:var(--f-mono);font-size:11px;color:var(--muted);padding-top:2px}
+.audit{font-size:13px;border-radius:8px;padding:7px 10px;background:var(--ok-bg);color:var(--ok)}
+.audit.low{background:var(--warn-bg);color:var(--warn)}
+.audit.bad{background:var(--err-bg);color:var(--err)}
+.warnline{font-size:13px;border-radius:8px;padding:7px 10px;background:var(--warn-bg);color:var(--warn);font-weight:600}
+.idea{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:10px;display:grid;gap:5px}
+.idea p{margin:0;font-size:13.5px;overflow-wrap:anywhere}
+.idea .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:13.5px}
+.expert{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.hist{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.hist .row{display:flex;justify-content:space-between;gap:8px;font-size:13px;align-items:baseline}
+.hist .row span:first-child{min-width:0;overflow-wrap:anywhere}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="wcat-logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#17573c"/><rect x="13" y="41" width="9" height="11" rx="2.5" fill="#ffffff" opacity=".55"/><rect x="27.5" y="35" width="9" height="17" rx="2.5" fill="#ffffff" opacity=".8"/><rect x="42" y="28" width="9" height="24" rx="2.5" fill="#ffffff"/><path d="M12 25l9.5 8L52 11" fill="none" stroke="#f2b84b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#wcat-logo"/></svg><span><span id="coName">Your Company</span> · <span id="deptName">Accounts Department</span></span></div>
+      <h1>World Class Accounts Team</h1>
+      <div style="font-size:14px;color:var(--muted)" data-i18n="tagline"></div>
+    </div>
+    <div class="hright">
+      <div class="live" id="live"><span class="dot"></span><span id="liveTxt"></span></div>
+      <div class="langsw" role="group" aria-label="Language / भाषा"><button type="button" data-lang="en" lang="en">English</button><button type="button" data-lang="hi" lang="hi">हिंदी</button><button type="button" data-lang="hn" lang="en">Hinglish</button></div>
+      <button id="editBtn" type="button" hidden data-i18n="editBtn"></button>
+      <button class="pri" id="demoBtn" type="button" data-i18n="demoBtn"></button>
+    </div>
+  </header>
+
+  <div class="chips" aria-label="Team summary">
+    <span class="chip"><b id="cTotal">–</b><span data-i18n="chipEmp"></span></span>
+    <span class="chip"><b id="cWork">–</b><span data-i18n="chipWork"></span></span>
+    <span class="chip"><b id="cAppr">–</b><span data-i18n="chipAppr"></span></span>
+    <span class="chip"><b id="cDone">–</b><span data-i18n="chipDone"></span></span>
+    <span class="chip"><b id="cErr">–</b><span data-i18n="chipErr"></span></span>
+    <span class="chip"><b id="cStale">–</b><span data-i18n="chipStale"></span></span>
+  </div>
+
+  <section class="panel" id="editor" hidden></section>
+
+  <div class="main">
+    <section class="officeBox">
+      <div class="banner" id="banner" hidden data-i18n="banner"></div>
+      <div class="office" id="office"><div class="sizer" id="sizer"><div class="stage" id="stage"></div></div></div>
+      <div class="legend">
+        <span><i style="background:var(--work)"></i><span data-i18n="lgWork"></span></span>
+        <span><i style="background:var(--warn)"></i><span data-i18n="lgAppr"></span></span>
+        <span><i style="background:var(--ok)"></i><span data-i18n="lgDone"></span></span>
+        <span><i style="background:var(--err)"></i><span data-i18n="lgErr"></span></span>
+        <span data-i18n="lgClick"></span>
+        <span class="swipe" data-i18n="lgSwipe"></span>
+      </div>
+    </section>
+
+    <aside>
+      <div class="panel" id="selPanel"></div>
+      <div class="panel">
+        <div class="sechead"><h2 data-i18n="hApprovals"></h2><small id="apprNote"></small></div>
+        <div id="approvals" style="display:grid;gap:8px"></div>
+      </div>
+      <div class="panel">
+        <div class="sechead"><h2 data-i18n="hRules"></h2><small id="ruleNote"></small></div>
+        <div id="rules" style="display:grid;gap:8px"></div>
+      </div>
+      <div class="panel">
+        <div class="sechead"><h2 data-i18n="hIdeas"></h2><small id="ideaNote"></small></div>
+        <div id="ideas" style="display:grid;gap:8px"></div>
+      </div>
+      <div class="panel">
+        <div class="sechead"><h2 data-i18n="hFeed"></h2><small data-i18n="live"></small></div>
+        <ul class="feed" id="feed"></ul>
+      </div>
+    </aside>
+  </div>
+  <footer class="credit"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#wcat-logo"/></svg><span><b>World Class Accounts Team</b> · <span data-i18n="credit"></span> <a href="https://github.com/prahlad1728-tech/world-class-accounts-team" target="_blank" rel="noopener">Prahlad</a> · MIT License</span></footer>
+</div>
+
+<script>
+(function(){
+  const I18N={
+  en:{tagline:"An AI accounts team that studies new rules and regulations every day",connecting:"Connecting…",editBtn:"Edit team & names",demoBtn:"Watch demo",langBtn:"हिंदी",
+    chipEmp:"employees",chipWork:"working",chipAppr:"need approval",chipDone:"done today",chipErr:"errors",chipStale:"stuck (no update for 30 min)",
+    banner:"Demo running: for illustration only, not real data.",lgWork:"Working (screen on, typing)",lgAppr:"In your cabin for approval",lgDone:"Done",lgErr:"Error",lgClick:"Click any employee to see details",lgSwipe:"On a phone, swipe the office sideways to see all of it",
+    selEmpty:"Click an employee.",hApprovals:"Approvals",apprEmpty:"No pending approvals.",hRules:"New rules & updates",rulesEmpty:"Every day the team reads new GST, Income Tax, MCA, ICAI and RBI notifications. Anything new shows up here.",
+    hIdeas:"Employee ideas",ideasEmpty:"No ideas yet. Employees will post improvement ideas here as they work.",hFeed:"What's happening in the office",live:"live",feedEmpty:"No activity yet. As soon as an employee starts working, it shows here.",
+    company:"Your Company",dept:"Accounts Department",cabin:"Your cabin",auditRoom:"Audit room",floor:"Accounts floor",chai:"Tea point",owner:"Owner",you:"(you)",bossName:"You",
+    st_working:"Working",st_done:"Done",st_needs_approval:"Needs approval",st_error:"Error",st_idle:"Idle",st_onboarding:"Onboarding",stale:"Stuck?",
+    never:"never",now:"just now",minAgo:n=>n+" min ago",hrAgo:n=>n+" h ago",dayAgo:n=>n+" d ago",
+    staleWarn:x=>"Last update "+x+". It may be stuck.",noTask:"No task assigned yet",stepOf:(a,b)=>"Step "+a+" of "+b,progress:"Progress",expertise:"Expertise",
+    learned:n=>"What they learned ("+n+")",learnedEmpty:"Nothing yet. Lessons from each job are added here.",auditScore:"Audit score",schedule:"Schedule",notSet:"not set",updated:"Updated",recent:"Recent work",jd:"Job description",
+    approve:"Approve",reject:"Reject",pendingN:n=>n+" pending",decisions:"Your recent decisions",approved:"Approved",rejected:"Rejected",todayN:n=>n+" today",effective:"Effective",source:"Source",
+    newN:n=>n+" new",accept:"Accept",notNow:"Not now",accepted:"Accepted",saveFail:"Couldn't save. Please try again.",
+    looks:["Short hair, tie","Long hair","Short hair","Bun","Spiky hair","Long hair, purple","Beard","Bob cut","Grey hair, glasses"],
+    setupH:"Start your World Class Accounts Team",setupP:"The office is empty. One click creates a default team of 10 AI employees. After that you can add, remove or change anyone: name, role, look and job description. There is no limit on team size.",
+    seedBtn:"Create default team",seeding:"Creating the team…",seeded:"Team created. Now change names and job descriptions.",seedFail:"Couldn't save the team. Please try again.",
+    newEmp:"New employee",fName:"Name",fRole:"Role",fLook:"Look",fSeat:"Seat",seatNormal:"Team member",seatHead:"Head (next to your cabin)",seatAudit:"Auditor (audit room)",fExp:"Expertise",fJd:"Job description (one task per line)",
+    delCard:"Remove this card",delEmp:"Remove from team",undo:"Undo (keep)",delNote:"Will be removed when you save.",edH:"Edit team & names",close:"Close",
+    fCompany:"Company name",fDept:"Department",fOwner:"Your name (shown on your cabin)",addEmp:"+ Add employee",addHint:"Add as many employees as you like. The office grows with the team.",
+    save:"Save",saving:"Saving…",saved:"Saved.",savedSkip:"Saved. New cards without a name were not saved; please add a name.",
+    noDb:"Live data unavailable (please sign in)",slow:"Can't reach the data yet…",broken:"Connection lost, please refresh the page",liveOn:"Live",credit:"Created by",
+    d:{steps:["Read the ledger export from the books","Pulled balances from the ERP","Matched both","Made the mismatch report"],assignLog:"Assigned the ledger reconciliation",assignSay:"Please match the ledger balances in the books and the ERP.",assignReply:"Sure, starting now.",
+      cashSay:"I need today's cash balance for the MIS.",cashReply:"Sending it in 10 minutes.",cashLog:"Asked for today's cash & bank balance",recTask:"Books ↔ ERP ledger reconciliation",recStart:"Reconciliation started: reading the ledger export",
+      cashTask:"Today's cash & bank position",payTask:"12 vendor payments, total ₹4.8 lakh",payDetail:"Due this week. Matched with PO and GRN.",payLog:"Brought the vendor payment list for approval",paySay:"12 vendor payments need your approval.",
+      cashDone:"Cash & bank position: sent to MIS",cashDoneLog:"Sent the cash & bank position",auditSay:"Checking 10 sample entries.",auditReply:"Sure, report in 2 minutes.",auditLog:"Sample audit started: 10 entries",
+      taxSay:"Read today's new GST notification!",ruleTitle:"DEMO: New GST notification",ruleSum:"Example: a new notification changed a return's due date. The team checked the impact and updated the calendar.",taxLog:"GSTR-2B downloaded",
+      recDone:"Reconciliation done: mismatch in 3 ledgers",recDoneSay:"Done! 3 ledgers have a mismatch.",recDoneLog:"Reconciliation done: 3 mismatches found, report ready",auditDoneLog:"Audit: 10 of 10 entries correct. Score 100%",auditNote:"10/10 sample entries correct",
+      lesson:"DEMO: The round-off ledger differs between the books and the ERP; separate it out before matching.",ideaTitle:"DEMO: Weekly auto reconciliation",ideaDetail:"Run the ledger match every Monday morning and send you the mismatch report, so month-end never gets stuck.",ideaImpact:"Saves time",ideaSay:"An idea: auto reconciliation every Monday!",auditSay2:"10 out of 10 correct. Great work!"}},
+  hn:{tagline:"AI accounts team jo roz naye rules aur regulations padhti hai",connecting:"Connect ho raha hai…",editBtn:"Team aur naam badlo",demoBtn:"Demo dekho",
+    chipEmp:"employees",chipWork:"kaam kar rahe",chipAppr:"approval chahiye",chipDone:"aaj done",chipErr:"errors",chipStale:"atke hue (30 min se update nahi)",
+    banner:"Demo chal raha hai: ye sirf dikhane ke liye hai, asli data nahi.",lgWork:"Kaam kar raha (screen on, typing)",lgAppr:"Approval ke liye aapke cabin mein",lgDone:"Kaam done",lgErr:"Error",lgClick:"Kisi bhi employee par click karke uski details dekhiye",lgSwipe:"Phone par office ko side mein swipe karke poora dekhiye",
+    selEmpty:"Kisi employee par click kariye.",hApprovals:"Approvals",apprEmpty:"Koi pending approval nahi.",hRules:"Naye rules aur updates",rulesEmpty:"Team roz GST, Income Tax, MCA, ICAI aur RBI ke naye notifications padhegi. Jo naya aayega, yahan dikhega.",
+    hIdeas:"Employees ke ideas",ideasEmpty:"Abhi koi idea nahi. Employees kaam karte hue sudhaar ke ideas yahan denge.",hFeed:"Office mein kya ho raha hai",live:"live",feedEmpty:"Abhi tak koi activity nahi. Jaise hi koi employee kaam karega, yahan dikhega.",
+    company:"Aapki Company",dept:"Accounts Department",cabin:"Aapka cabin",auditRoom:"Audit room",floor:"Accounts floor",chai:"Chai point",owner:"Owner",you:"(aap)",bossName:"Aap",
+    st_working:"Working",st_done:"Done",st_needs_approval:"Approval chahiye",st_error:"Error",st_idle:"Free",st_onboarding:"Onboarding",stale:"Atka hua?",
+    never:"kabhi nahi",now:"abhi",minAgo:n=>n+" min pehle",hrAgo:n=>n+" ghante pehle",dayAgo:n=>n+" din pehle",
+    staleWarn:x=>"Aakhri update "+x+". Ho sakta hai ye atak gaya ho.",noTask:"Abhi koi kaam assign nahi hai",stepOf:(a,b)=>"Step "+a+" of "+b,progress:"Progress",expertise:"Expertise",
+    learned:n=>"Isne kya seekha ("+n+")",learnedEmpty:"Abhi tak kuch nahi. Har kaam ke baad seekhi baat yahan judti jaayegi.",auditScore:"Audit score",schedule:"Schedule",notSet:"set nahi",updated:"Update",recent:"Recent kaam",jd:"Job description",
+    approve:"Approve",reject:"Reject",pendingN:n=>n+" pending",decisions:"Aapke recent faisle",approved:"Approved",rejected:"Rejected",todayN:n=>n+" aaj",effective:"Laagu",source:"Source",
+    newN:n=>n+" naye",accept:"Accept",notNow:"Abhi nahi",accepted:"Accepted",saveFail:"Save nahi hua. Dobara try kariye.",
+    looks:["Chhote baal, tie","Lambe baal","Chhote baal","Juda (bun)","Khade baal","Lambe baal, purple","Daadhi","Bob cut","Safed baal, chashma"],
+    setupH:"Apni World Class Accounts Team shuru kariye",setupP:"Office abhi khaali hai. Ek click mein 10 AI employees ki default team ban jaayegi. Uske baad aap kisi ko bhi jod, hata ya badal sakte hain: naam, role, look aur job description. Team ki koi limit nahi.",
+    seedBtn:"Default team banao",seeding:"Team ban rahi hai…",seeded:"Team ban gayi. Ab naam aur JD badal lijiye.",seedFail:"Team save nahi hui. Dobara try kariye.",
+    newEmp:"Naya employee",fName:"Naam",fRole:"Role",fLook:"Look",fSeat:"Seat",seatNormal:"Team member",seatHead:"Head (aapke cabin ke paas)",seatAudit:"Auditor (audit room)",fExp:"Expertise",fJd:"Job description (har line ek kaam)",
+    delCard:"Ye card hatao",delEmp:"Team se hatao",undo:"Undo (mat hatao)",delNote:"Save dabane par team se hat jaayega.",edH:"Team aur naam badlo",close:"Band karo",
+    fCompany:"Company ka naam",fDept:"Department",fOwner:"Aapka naam (cabin par dikhega)",addEmp:"+ Naya employee jodo",addHint:"Team mein jitne chahe employee jodiye. Office apne aap badi hoti jaayegi.",
+    save:"Save karo",saving:"Save ho raha hai…",saved:"Save ho gaya.",savedSkip:"Save ho gaya. Bina naam wale naye card save nahi hue, unka naam bhariye.",
+    noDb:"Live data available nahi (sign in kariye)",slow:"Data abhi reach nahi ho raha…",broken:"Connection toot gaya, page refresh kariye",liveOn:"Live",credit:"Banaya:",
+    d:{steps:["Books ka ledger export padha","ERP se balance liye","Dono ko match kiya","Mismatch report banayi"],assignLog:"Ledger reconciliation ka kaam assign kiya",assignSay:"Books aur ERP ke ledger balance match kar do.",assignReply:"Ji, abhi shuru karte hain.",
+      cashSay:"MIS ke liye aaj ka cash balance chahiye.",cashReply:"10 minute mein bhejte hain.",cashLog:"Aaj ka cash & bank balance maanga",recTask:"Books ↔ ERP ledger reconciliation",recStart:"Reconciliation shuru: ledger export padh rahe hain",
+      cashTask:"Aaj ki cash & bank position",payTask:"12 vendor payments, kul ₹4.8 lakh",payDetail:"Is hafte due. PO aur GRN se match ho chuke hain.",payLog:"Vendor payments ki list approval ke liye laaye",paySay:"12 vendor payments aapke approval ke liye hain.",
+      cashDone:"Cash & bank position: MIS ko bhej di",cashDoneLog:"Cash & bank position bhej di",auditSay:"10 sample entries check kar rahe hain.",auditReply:"Ji, report 2 minute mein.",auditLog:"Sample audit shuru: 10 entries",
+      taxSay:"Aaj ka naya GST notification padh liya!",ruleTitle:"DEMO: Naya GST notification",ruleSum:"Example: ek naye notification se ek return ki due date badli. Team ne asar check karke calendar update kiya.",taxLog:"GSTR-2B download ho gaya",
+      recDone:"Reconciliation done: 3 ledgers mein mismatch mila",recDoneSay:"Ho gaya! 3 ledgers mein mismatch hai.",recDoneLog:"Reconciliation done: 3 mismatch mile, report taiyar",auditDoneLog:"Audit: 10 mein se 10 entries sahi. Score 100%",auditNote:"10/10 sample entries sahi",
+      lesson:"DEMO: Round-off ledger ka farak books aur ERP mein alag tarah se aata hai; match karne se pehle ise alag karo.",ideaTitle:"DEMO: Har hafte auto reconciliation",ideaDetail:"Har Monday subah ledger match chala kar mismatch report aapko bhej dein, taaki month-end par kaam na ruke.",ideaImpact:"Time bachega",ideaSay:"Ek idea hai: har Monday auto reconciliation!",auditSay2:"10 mein 10 sahi. Badhiya kaam!"}},
+  hi:{tagline:"AI अकाउंट्स टीम जो रोज़ नए नियम और रेगुलेशन पढ़ती है",connecting:"कनेक्ट हो रहा है…",editBtn:"टीम और नाम बदलें",demoBtn:"डेमो देखें",langBtn:"English",
+    chipEmp:"कर्मचारी",chipWork:"काम कर रहे",chipAppr:"अप्रूवल चाहिए",chipDone:"आज पूरे",chipErr:"एरर",chipStale:"अटके हुए (30 मिनट से अपडेट नहीं)",
+    banner:"डेमो चल रहा है: यह सिर्फ़ दिखाने के लिए है, असली डेटा नहीं।",lgWork:"काम कर रहा है (स्क्रीन ऑन, टाइपिंग)",lgAppr:"अप्रूवल के लिए आपके केबिन में",lgDone:"काम पूरा",lgErr:"एरर",lgClick:"किसी भी कर्मचारी पर क्लिक करके डिटेल देखें",lgSwipe:"फ़ोन पर ऑफ़िस को साइड में स्वाइप करके पूरा देखें",
+    selEmpty:"किसी कर्मचारी पर क्लिक करें।",hApprovals:"अप्रूवल",apprEmpty:"कोई अप्रूवल बाकी नहीं।",hRules:"नए नियम और अपडेट",rulesEmpty:"टीम रोज़ GST, इनकम टैक्स, MCA, ICAI और RBI के नए नोटिफ़िकेशन पढ़ेगी। जो नया आएगा, यहाँ दिखेगा।",
+    hIdeas:"कर्मचारियों के आइडिया",ideasEmpty:"अभी कोई आइडिया नहीं। कर्मचारी काम करते हुए सुधार के आइडिया यहाँ देंगे।",hFeed:"ऑफ़िस में क्या हो रहा है",live:"लाइव",feedEmpty:"अभी तक कोई गतिविधि नहीं। जैसे ही कोई कर्मचारी काम करेगा, यहाँ दिखेगा।",
+    company:"आपकी कंपनी",dept:"अकाउंट्स विभाग",cabin:"आपका केबिन",auditRoom:"ऑडिट रूम",floor:"अकाउंट्स फ़्लोर",chai:"चाय पॉइंट",owner:"मालिक",you:"(आप)",bossName:"आप",
+    st_working:"काम चालू",st_done:"पूरा",st_needs_approval:"अप्रूवल चाहिए",st_error:"एरर",st_idle:"खाली",st_onboarding:"ऑनबोर्डिंग",stale:"अटका?",
+    never:"कभी नहीं",now:"अभी",minAgo:n=>n+" मिनट पहले",hrAgo:n=>n+" घंटे पहले",dayAgo:n=>n+" दिन पहले",
+    staleWarn:x=>"आख़िरी अपडेट "+x+"। हो सकता है यह अटक गया हो।",noTask:"अभी कोई काम नहीं दिया गया",stepOf:(a,b)=>"स्टेप "+a+" / "+b,progress:"प्रगति",expertise:"विशेषज्ञता",
+    learned:n=>"इसने क्या सीखा ("+n+")",learnedEmpty:"अभी कुछ नहीं। हर काम के बाद सीखी बात यहाँ जुड़ती जाएगी।",auditScore:"ऑडिट स्कोर",schedule:"शेड्यूल",notSet:"तय नहीं",updated:"अपडेट",recent:"हाल का काम",jd:"जॉब डिस्क्रिप्शन",
+    approve:"अप्रूव करें",reject:"रिजेक्ट करें",pendingN:n=>n+" बाकी",decisions:"आपके हाल के फ़ैसले",approved:"अप्रूव्ड",rejected:"रिजेक्टेड",todayN:n=>"आज "+n,effective:"लागू",source:"स्रोत",
+    newN:n=>n+" नए",accept:"स्वीकार करें",notNow:"अभी नहीं",accepted:"स्वीकार",saveFail:"सेव नहीं हुआ। दोबारा कोशिश करें।",
+    looks:["छोटे बाल, टाई","लंबे बाल","छोटे बाल","जूड़ा","खड़े बाल","लंबे बाल, बैंगनी","दाढ़ी","बॉब कट","सफ़ेद बाल, चश्मा"],
+    setupH:"अपनी वर्ल्ड क्लास अकाउंट्स टीम शुरू करें",setupP:"ऑफ़िस अभी खाली है। एक क्लिक में 10 AI कर्मचारियों की डिफ़ॉल्ट टीम बन जाएगी। उसके बाद आप किसी को भी जोड़, हटा या बदल सकते हैं: नाम, रोल, लुक और जॉब डिस्क्रिप्शन। टीम की कोई सीमा नहीं।",
+    seedBtn:"डिफ़ॉल्ट टीम बनाएँ",seeding:"टीम बन रही है…",seeded:"टीम बन गई। अब नाम और जॉब डिस्क्रिप्शन बदल लें।",seedFail:"टीम सेव नहीं हुई। दोबारा कोशिश करें।",
+    newEmp:"नया कर्मचारी",fName:"नाम",fRole:"रोल",fLook:"लुक",fSeat:"सीट",seatNormal:"टीम सदस्य",seatHead:"हेड (आपके केबिन के पास)",seatAudit:"ऑडिटर (ऑडिट रूम)",fExp:"विशेषज्ञता",fJd:"जॉब डिस्क्रिप्शन (हर लाइन में एक काम)",
+    delCard:"यह कार्ड हटाएँ",delEmp:"टीम से हटाएँ",undo:"वापस लें (न हटाएँ)",delNote:"सेव करने पर टीम से हट जाएगा।",edH:"टीम और नाम बदलें",close:"बंद करें",
+    fCompany:"कंपनी का नाम",fDept:"विभाग",fOwner:"आपका नाम (केबिन पर दिखेगा)",addEmp:"+ नया कर्मचारी जोड़ें",addHint:"टीम में जितने चाहें कर्मचारी जोड़ें। ऑफ़िस अपने आप बड़ा होता जाएगा।",
+    save:"सेव करें",saving:"सेव हो रहा है…",saved:"सेव हो गया।",savedSkip:"सेव हो गया। बिना नाम वाले नए कार्ड सेव नहीं हुए, उनका नाम भरें।",
+    noDb:"लाइव डेटा उपलब्ध नहीं (साइन इन करें)",slow:"डेटा अभी नहीं मिल रहा…",broken:"कनेक्शन टूट गया, पेज रीफ़्रेश करें",liveOn:"लाइव",credit:"निर्माता",
+    d:{steps:["बुक्स का लेजर एक्सपोर्ट पढ़ा","ERP से बैलेंस लिए","दोनों को मिलाया","मिसमैच रिपोर्ट बनाई"],assignLog:"लेजर रिकंसिलिएशन का काम सौंपा",assignSay:"बुक्स और ERP के लेजर बैलेंस मिला दीजिए।",assignReply:"जी, अभी शुरू करते हैं।",
+      cashSay:"MIS के लिए आज का कैश बैलेंस चाहिए।",cashReply:"10 मिनट में भेज रहे हैं।",cashLog:"आज का कैश और बैंक बैलेंस माँगा",recTask:"बुक्स ↔ ERP लेजर रिकंसिलिएशन",recStart:"रिकंसिलिएशन शुरू: लेजर एक्सपोर्ट पढ़ रहे हैं",
+      cashTask:"आज की कैश और बैंक पोज़िशन",payTask:"12 वेंडर पेमेंट, कुल ₹4.8 लाख",payDetail:"इस हफ़्ते ड्यू। PO और GRN से मिलान हो चुका है।",payLog:"वेंडर पेमेंट की लिस्ट अप्रूवल के लिए लाए",paySay:"12 वेंडर पेमेंट आपके अप्रूवल के लिए हैं।",
+      cashDone:"कैश और बैंक पोज़िशन: MIS को भेज दी",cashDoneLog:"कैश और बैंक पोज़िशन भेज दी",auditSay:"10 सैंपल एंट्री चेक कर रहे हैं।",auditReply:"जी, 2 मिनट में रिपोर्ट।",auditLog:"सैंपल ऑडिट शुरू: 10 एंट्री",
+      taxSay:"आज का नया GST नोटिफ़िकेशन पढ़ लिया!",ruleTitle:"DEMO: नया GST नोटिफ़िकेशन",ruleSum:"उदाहरण: एक नए नोटिफ़िकेशन से एक रिटर्न की ड्यू डेट बदली। टीम ने असर जाँचकर कैलेंडर अपडेट किया।",taxLog:"GSTR-2B डाउनलोड हो गया",
+      recDone:"रिकंसिलिएशन पूरा: 3 लेजर में मिसमैच मिला",recDoneSay:"हो गया! 3 लेजर में मिसमैच है।",recDoneLog:"रिकंसिलिएशन पूरा: 3 मिसमैच मिले, रिपोर्ट तैयार",auditDoneLog:"ऑडिट: 10 में से 10 एंट्री सही। स्कोर 100%",auditNote:"10/10 सैंपल एंट्री सही",
+      lesson:"DEMO: राउंड-ऑफ़ लेजर का फ़र्क बुक्स और ERP में अलग तरह से आता है; मिलान से पहले इसे अलग करें।",ideaTitle:"DEMO: हर हफ़्ते ऑटो रिकंसिलिएशन",ideaDetail:"हर सोमवार सुबह लेजर मिलान चलाकर मिसमैच रिपोर्ट आपको भेजें, ताकि महीने के अंत में काम न रुके।",ideaImpact:"समय बचेगा",ideaSay:"एक आइडिया: हर सोमवार ऑटो रिकंसिलिएशन!",auditSay2:"10 में 10 सही। बढ़िया काम!"}}
+  };
+  let LANG="en";
+  try{const s=localStorage.getItem("wcat-lang");if(s==="en"||s==="hi"||s==="hn")LANG=s;else if((navigator.language||"").toLowerCase().startsWith("hi"))LANG="hi";}catch(e){}
+  const t=(k,...a)=>{const v=(I18N[LANG][k]!==undefined?I18N[LANG][k]:I18N.en[k]);return typeof v==="function"?v(...a):v;};
+  const D=k=>(I18N[LANG].d[k]??I18N.en.d[k]);
+
+  const $=id=>document.getElementById(id);
+  const stage=$("stage");
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const LABEL=new Proxy({},{get:(o,k)=>typeof k==="string"&&I18N.en["st_"+k]!==undefined?t("st_"+k):undefined});
+  const BADGE={working:"…",needs_approval:"!",error:"×",done:"✓"};
+  const SPEED=0.24;
+
+  /* ---------- floor plan (grows with the team) ---------- */
+  const COLS=[90,260,430,600], ROW0=225, ROWH=245;
+  function mkDesk(d){d.spot=d.spot||{x:d.x+85,y:d.y+42};d.seat={x:d.x-18,y:d.y+22};return d;}
+  const HEAD_DESK=mkDesk({x:600,y:70,spot:{x:688,y:115}});
+  const AUDIT_DESK=mkDesk({x:880,y:495,spot:{x:800,y:548}});
+  const slotDesk=i=>mkDesk({x:COLS[i%4],y:ROW0+Math.floor(i/4)*ROWH});
+  let H=640, AISLES=[ROW0+171];
+  const aisleFor=p=>{if(p.x>735)return AISLES[0];let b=AISLES[0];for(const a of AISLES)if(Math.abs(a-p.y)<Math.abs(b-p.y))b=a;return b;};
+  const isHeadDoc=(id,v)=>v.is_head===true;
+  const isAuditDoc=(id,v)=>v.is_auditor===true||(v.is_auditor===undefined&&id==="audit");
+  const BOSS_SPOTS=[{x:790,y:190},{x:840,y:190},{x:890,y:190},{x:940,y:190}];
+  const BOSS_TALK={x:812,y:182};
+
+  const APPEAR={
+    head:{skin:"#c68a5e",hair:"#1d1a17",style:"short",shirt:"#2f4f7f",tie:true},
+    gl:{skin:"#d9a27a",hair:"#2a1d16",style:"long",shirt:"#9a3f62"},
+    ap:{skin:"#b97a52",hair:"#151313",style:"short",shirt:"#3c6e5a"},
+    ar:{skin:"#e0b08a",hair:"#3a2418",style:"bun",shirt:"#c0703a"},
+    bank:{skin:"#a96d47",hair:"#111111",style:"spiky",shirt:"#4a5d9a"},
+    tax:{skin:"#cf9670",hair:"#1f1612",style:"long",shirt:"#6b4fa0"},
+    payroll:{skin:"#bd8460",hair:"#2b2b2b",style:"short",shirt:"#9a6b2f",beard:true},
+    mis:{skin:"#e2b48f",hair:"#4a2c1c",style:"bob",shirt:"#2d8a8a"},
+    audit:{skin:"#b27650",hair:"#8a8a8a",style:"short",shirt:"#3a3a46",glasses:true}
+  };
+  const LOOKS=[["head"],["gl"],["ap"],["ar"],["bank"],["tax"],["payroll"],["mis"],["audit"]];
+  function lookFor(id){const v=real[id]||{};if(typeof v.look==="number"&&LOOKS[v.look])return APPEAR[LOOKS[v.look][0]];return APPEAR[id]||APPEAR[LOOKS[Math.abs(v.order||0)%LOOKS.length][0]];}
+  const lookKey=id=>{const v=real[id]||{};return typeof v.look==="number"?"L"+v.look:"D";};
+  const FALLBACK=[{skin:"#c98d65",hair:"#222",style:"short",shirt:"#5a6b3a"},{skin:"#dcae86",hair:"#3b2416",style:"long",shirt:"#8a4b8a"}];
+
+  function personSVG(a){
+    const back=a.style==="long"?`<rect x="10" y="9" width="24" height="27" rx="9" fill="${a.hair}"/>`:a.style==="bob"?`<rect x="10" y="9" width="24" height="17" rx="8" fill="${a.hair}"/>`:"";
+    let front=`<path d="M11.4 15.5q0-10.5 10.6-10.5t10.6 10.5q-3.5-5.6-10.6-5.6t-10.6 5.6z" fill="${a.hair}"/>`;
+    if(a.style==="spiky")front=`<path d="M11.4 15q-.5-6 3-8l1 2 2-4 2 3 2-4 2 3 2-3 2 4 1.6-1.5q3 3 2.4 8.5q-4-5-10.4-5t-10.6 5z" fill="${a.hair}"/>`;
+    if(a.style==="bun")front+=`<circle cx="22" cy="4.5" r="4.6" fill="${a.hair}"/>`;
+    return `<svg viewBox="0 0 44 72" width="44" height="72" aria-hidden="true">
+      ${back}
+      <rect class="leg l" x="15" y="50" width="6" height="19" rx="3" fill="#2b3040"/>
+      <rect class="leg r" x="23" y="50" width="6" height="19" rx="3" fill="#2b3040"/>
+      <g class="body">
+        <rect class="arm l" x="6" y="30" width="6" height="18" rx="3" fill="${a.shirt}"/>
+        <rect class="arm r" x="32" y="30" width="6" height="18" rx="3" fill="${a.shirt}"/>
+        <rect x="10" y="28" width="24" height="25" rx="9" fill="${a.shirt}"/>
+        ${a.tie?`<path d="M22 30l-2.4 3 2.4 11 2.4-11z" fill="#b8323a"/>`:""}
+        <rect x="19" y="23" width="6" height="7" rx="2" fill="${a.skin}"/>
+        <circle cx="22" cy="16" r="10.5" fill="${a.skin}"/>
+        ${a.beard?`<path d="M12.5 17q9.5 13 19 0q-1.5 9.5-9.5 9.5t-9.5-9.5z" fill="${a.hair}"/>`:""}
+        ${front}
+        <circle cx="18.4" cy="17" r="1.3" fill="#1d1d1d"/><circle cx="25.6" cy="17" r="1.3" fill="#1d1d1d"/>
+        <path d="M19.2 21.2q2.8 2 5.6 0" stroke="#6e3526" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        ${a.glasses?`<g stroke="#1d1d1d" stroke-width="1" fill="none"><circle cx="18.4" cy="17" r="3"/><circle cx="25.6" cy="17" r="3"/><path d="M21.4 17h1.2"/></g>`:""}
+      </g></svg>`;
+  }
+
+  let ownerLbl=null;const FL={};
+  function el(cls,css,html){const d=document.createElement("div");d.className=cls;Object.assign(d.style,css||{});if(html)d.innerHTML=html;stage.appendChild(d);return d;}
+  // static scenery
+  (function scenery(){
+    el("room",{left:"740px",top:"0px",width:"260px",height:"222px"});
+    el("door",{left:"770px",top:"219px",width:"190px"});
+    FL.cabin=el("rlabel",{left:"752px",top:"8px"});
+    el("desk big",{left:"800px",top:"62px",zIndex:110});
+    el("chair",{left:"861px",top:"26px",width:"40px",height:"40px",zIndex:60});
+    el("mon",{left:"930px",top:"40px",zIndex:111});
+    ownerLbl=el("rlabel",{left:"820px",top:"118px",zIndex:112,textTransform:"none",letterSpacing:"0",fontSize:"12px"});
+    el("filing",{left:"958px",top:"130px",zIndex:170});
+
+    el("room",{left:"740px",top:"410px",width:"260px",height:"230px"});
+    el("door",{left:"770px",top:"408px",width:"95px"});
+    FL.audit=el("rlabel",{left:"752px",top:"420px"});
+    el("filing",{left:"958px",top:"428px",zIndex:470});
+
+    FL.floor=el("rlabel",{left:"16px",top:"170px"});
+    el("cooler",{left:"968px",top:"300px",zIndex:340});
+    el("machine",{left:"930px",top:"310px",zIndex:340});
+    FL.chai=el("rlabel",{left:"905px",top:"352px"});
+    [[20,16],[700,16]].forEach(([x,y])=>el("plant",{left:x+"px",top:y+"px",zIndex:y+30}));
+  })();
+
+  /* ---------- state ---------- */
+  let real={}, overrides={}, chars={}, sel=null, canWrite=false, db=null;
+  let rules=[], ideas=[], learnings=[], realFeed=[], demoFeed=[], realAppr=[], allAppr=[], demoAppr=[], demoOn=false, userCap=null;
+  const STALE_MS=30*60*1000;
+  const isStale=v=>v.status==="working"&&!!v.updated_at&&(Date.now()-new Date(v.updated_at).getTime())>STALE_MS;
+  const view=id=>({...(real[id]||{}),...(overrides[id]||{})});
+  const nameOf=id=>id==="boss"?t("bossName"):(real[id]?.name||id||"System");
+  const shortRole=r=>String(r||"").replace(/\s*\(.*\)\s*/,"").trim();
+
+  function setPos(ch,p,ms){
+    if(p.x<ch.pos.x-1)ch.el.classList.add("left");else if(p.x>ch.pos.x+1)ch.el.classList.remove("left");
+    ch.el.style.transition=ms?`transform ${ms}ms linear`:"none";
+    ch.el.style.transform=`translate(${p.x-22}px,${p.y-72}px)`;
+    if(!ch.talking)ch.el.style.zIndex=Math.round(p.y);
+    ch.pos={x:p.x,y:p.y};
+  }
+  async function step(ch,p,ms){const d=Math.hypot(p.x-ch.pos.x,p.y-ch.pos.y);if(d<1)return;const t=ms||Math.max(120,d/SPEED);setPos(ch,p,t);await sleep(t+20);}
+  async function go(ch,t){
+    const pts=[];
+    if(ch.sit){ch.sit=false;ch.el.classList.remove("sit");pts.push(ch.home.spot);}
+    const last=()=>pts.length?pts[pts.length-1]:ch.pos;
+    if(Math.hypot(last().x-t.x,last().y-t.y)>3){
+      const A=aisleFor(last());
+      if(Math.abs(last().y-A)>2)pts.push({x:last().x,y:A});
+      if(Math.abs(last().x-t.x)>2)pts.push({x:t.x,y:A});
+      pts.push(t);
+    }
+    ch.el.classList.add("walking");
+    for(const p of pts)await step(ch,p);
+    ch.el.classList.remove("walking");
+  }
+  async function goSeat(ch){
+    await go(ch,ch.home.spot);
+    if(ch.home.seat){await step(ch,ch.home.seat,260);ch.sit=true;ch.el.classList.add("sit");}
+  }
+  const enqueue=(ch,fn)=>{ch.busy++;return (ch.q=ch.q.then(fn).catch(()=>{}).then(()=>{ch.busy--;}));};
+  function bubble(ch,msg,ms,toName){
+    const b=document.createElement("div");b.className="bubble"+(ch.pos.x<140?" r":ch.pos.x>860?" l":"");
+    b.innerHTML=(toName?`<span class="to">→ ${esc(toName)}</span>`:"")+esc(String(msg).slice(0,140));
+    ch.el.querySelectorAll(".bubble").forEach(x=>x.remove());
+    ch.talking=true;if(!ch.sit)ch.el.style.zIndex=3000;ch.el.appendChild(b);
+    setTimeout(()=>{b.remove();if(!ch.el.querySelector(".bubble")){ch.talking=false;ch.el.style.zIndex=Math.round(ch.pos.y);}},ms);
+  }
+  function spotOf(id){return id==="boss"?BOSS_TALK:(chars[id]?chars[id].home.spot:BOSS_TALK);}
+  function wantPlace(ch){
+    if(ch.want==="boss"){const ids=Object.keys(chars).filter(k=>chars[k].want==="boss");return BOSS_SPOTS[Math.max(0,ids.indexOf(ch.id))%BOSS_SPOTS.length];}
+    return null;
+  }
+  async function goHome(ch){const p=wantPlace(ch);if(p)await go(ch,p);else await goSeat(ch);}
+  function talk(from,to,msg,reply){
+    const ch=chars[from];if(!ch)return Promise.resolve();
+    return enqueue(ch,async()=>{
+      await go(ch,spotOf(to));
+      if(reply&&chars[to]){bubble(ch,msg,3000,nameOf(to));await sleep(3100);bubble(chars[to],reply,3000);await sleep(3000);}
+      else{bubble(ch,msg,4300,nameOf(to));await sleep(4300);}
+      await goHome(ch);
+    });
+  }
+  function say(id,msg){const ch=chars[id];if(ch)bubble(ch,msg,4500);}
+
+  function placeFurniture(ch,d){
+    const set=(e,css)=>Object.assign(e.style,css);
+    set(ch.chair,{left:(d.seat.x-19)+"px",top:(d.y-24)+"px",zIndex:d.y-30});
+    set(ch.desk,{left:(d.x-62)+"px",top:d.y+"px",zIndex:d.y+46});
+    set(ch.mon,{left:(d.x+6)+"px",top:(d.y-24)+"px",zIndex:d.y+47});
+    set(ch.plate,{left:(d.x-80)+"px",top:(d.y+50)+"px",zIndex:d.y+48});
+  }
+  function ensureChar(id,d){
+    let ch=chars[id];
+    if(!ch){
+      ch={id,home:d,pos:{x:0,y:0},sit:false,want:"seat",q:Promise.resolve(),talking:false,busy:0};
+      ch.chair=el("chair");ch.desk=el("desk");ch.mon=el("mon",{},"<b></b><i style='width:0'></i>");ch.plate=el("plate");
+      ch.plate.tabIndex=0;ch.plate.setAttribute("role","button");
+      ch.plate.addEventListener("click",()=>select(id));
+      ch.plate.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(id);}});
+      ch.el=el("ch",{},`<div class="fl">${personSVG(lookFor(id))}</div><div class="nm"></div><span class="badge" hidden></span>`);
+      ch.el.addEventListener("click",()=>select(id));
+      ch.look=lookKey(id);
+      ch.parts=[ch.chair,ch.desk,ch.mon,ch.plate,ch.el];
+      chars[id]=ch;
+      placeFurniture(ch,d);setPos(ch,d.seat,0);ch.sit=true;ch.el.classList.add("sit");
+    }else if(ch.home.x!==d.x||ch.home.y!==d.y){
+      ch.home=d;placeFurniture(ch,d);
+      if(ch.sit&&!ch.busy){setPos(ch,d.seat,0);}
+    }
+    return ch;
+  }
+  function layout(ids){
+    const map={};let headId=null,auditId=null;
+    for(const id of ids){const v=real[id];if(!headId&&isHeadDoc(id,v))headId=id;else if(!auditId&&isAuditDoc(id,v))auditId=id;}
+    const rest=ids.filter(i=>i!==headId&&i!==auditId);
+    if(headId)map[headId]=HEAD_DESK;if(auditId)map[auditId]=AUDIT_DESK;
+    rest.forEach((id,i)=>map[id]=slotDesk(i));
+    const rows=Math.max(2,Math.ceil(rest.length/4));
+    AISLES=Array.from({length:rows},(_,r)=>ROW0+r*ROWH+171);
+    const newH=Math.max(660,ROW0+(rows-1)*ROWH+190);
+    if(newH!==H){H=newH;stage.style.height=H+"px";fit();}
+    return map;
+  }
+
+  function renderAgents(){
+    const ids=Object.keys({...real,...overrides}).filter(id=>real[id]);
+    ids.sort((x,y)=>(real[x].order??99)-(real[y].order??99));
+    const desks=layout(ids);
+    for(const id of ids){
+      const v=view(id), ch=ensureChar(id,desks[id]), st=v.status||"idle", stale=isStale(v);
+      ch.parts.forEach(e=>e.hidden=false);
+      if(ch.look!==lookKey(id)){ch.look=lookKey(id);ch.el.querySelector(".fl").innerHTML=personSVG(lookFor(id));}
+      ch.el.classList.toggle("working",st==="working");
+      ch.el.querySelector(".nm").textContent=v.name||id;
+      ch.el.setAttribute("aria-label",(v.name||id)+", "+(LABEL[st]||st));
+      const b=ch.el.querySelector(".badge");
+      if(stale){b.hidden=false;b.className="badge needs_approval";b.textContent="?";}
+      else if(BADGE[st]){b.hidden=false;b.className="badge "+st;b.textContent=BADGE[st];}else b.hidden=true;
+      if(ch.mon){ch.mon.classList.toggle("on",st==="working");ch.mon.querySelector("i").style.width=(st==="working"?Math.max(4,pct(v)??10):0)*0.38+"px";}
+      ch.plate.classList.toggle("sel",sel===id);
+      ch.plate.innerHTML=`<span class="n">${esc(v.name||id)}</span><span class="r">${esc(shortRole(v.role))}</span><span class="s s-${stale?"needs_approval":esc(st)}">${stale?esc(t("stale")):esc(LABEL[st]||st)}</span>`;
+      const pend=[...realAppr,...demoAppr].some(a=>a.agent_id===id);
+      const decided=allAppr.some(a=>a.agent_id===id&&a.status!=="pending"&&a.decided_at&&(!v.updated_at||a.decided_at>v.updated_at));
+      const want=(pend||(st==="needs_approval"&&!decided))?"boss":"seat";
+      if(ch.want!==want){ch.want=want;enqueue(ch,()=>goHome(ch));}
+    }
+    for(const id of Object.keys(chars))if(!ids.includes(id))chars[id].parts.forEach(e=>e.hidden=true);
+    const all=ids.map(view), today=new Date().toDateString(), c=s=>all.filter(a=>a.status===s).length;
+    $("cTotal").textContent=all.length;$("cWork").textContent=c("working");$("cErr").textContent=c("error");$("cStale").textContent=all.filter(isStale).length;
+    $("cAppr").textContent=realAppr.length+demoAppr.length;
+    $("cDone").textContent=all.filter(a=>a.status==="done"&&(!a.updated_at||new Date(a.updated_at).toDateString()===today)).length;
+    if((!sel||!real[sel])&&ids.length)sel=ids.find(i=>real[i].is_head)||ids[0];
+    renderSel();
+  }
+  function pct(v){const s=Array.isArray(v.steps)?v.steps:[];if(typeof v.progress==="number")return Math.max(0,Math.min(100,v.progress));return s.length?Math.round(100*s.filter(x=>x.state==="done").length/s.length):null;}
+  function ago(ts){if(!ts)return t("never");const d=(Date.now()-new Date(ts).getTime())/1000;if(isNaN(d))return "—";if(d<60)return t("now");if(d<3600)return t("minAgo",Math.floor(d/60));if(d<86400)return t("hrAgo",Math.floor(d/3600));return t("dayAgo",Math.floor(d/86400));}
+  function select(id){sel=id;renderAgents();}
+  function renderSel(){
+    const p=$("selPanel");if(!sel||!real[sel]){p.innerHTML=`<p class="empty">${esc(t("selEmpty"))}</p>`;return;}
+    const v=view(sel), st=v.status||"idle", P=pct(v), steps=Array.isArray(v.steps)?v.steps:[];
+    const nDone=steps.filter(s=>s.state==="done").length;
+    const a=lookFor(sel);
+    p.innerHTML=`<div class="who"><div class="av">${personSVG(a)}</div><div style="min-width:0;flex:1"><h2>${esc(v.name)}</h2><div style="font-size:13px;color:var(--muted)">${esc(v.role)}</div></div><span class="pill s-${esc(st)}">${esc(LABEL[st]||st)}</span></div>
+      ${isStale(v)?`<div class="warnline">${esc(t("staleWarn",ago(v.updated_at)))}</div>`:""}
+      <div class="task">${v.current_task?esc(v.current_task):`<em>${esc(t("noTask"))}</em>`}</div>
+      ${P!==null?`<div class="prog"><div class="pl"><span>${steps.length?esc(t("stepOf",Math.min(nDone+1,steps.length),steps.length)):esc(t("progress"))}</span><span>${P}%</span></div><div class="bar" role="progressbar" aria-valuenow="${P}" aria-valuemin="0" aria-valuemax="100"><i style="width:${P}%"></i></div>
+      ${steps.length?`<ul class="steps">${steps.map(s=>`<li><span class="k">${s.state==="done"?"✓":s.state==="now"?"▸":"·"}</span><span class="${s.state==="done"?"done":s.state==="now"?"now":""}">${esc(s.label)}</span></li>`).join("")}</ul>`:""}</div>`:""}
+      ${v.expertise?`<div class="expert"><b>${esc(t("expertise"))}:</b> ${esc(v.expertise)}</div>`:""}
+      ${(()=>{const L=learnings.filter(l=>l.agent_id===sel);return `<div><div class="sub">${esc(t("learned",L.length))}</div>${L.length?`<ul class="mini">${L.slice(0,5).map(l=>`<li><span class="t">${esc(hhmm(l.ts))}</span><span>${esc(l.lesson)}</span></li>`).join("")}</ul>`:`<p class="empty">${esc(t("learnedEmpty"))}</p>`}</div>`;})()}
+      ${typeof v.audit_score==="number"?`<div class="audit ${v.audit_score<70?"bad":v.audit_score<90?"low":""}"><b>${esc(t("auditScore"))}: ${Math.round(v.audit_score)}%</b>${v.audit_note?` · ${esc(v.audit_note)}`:""}</div>`:""}
+      <div class="meta"><span>${esc(t("schedule"))}: ${esc(!v.schedule||v.schedule==="not set"?t("notSet"):v.schedule)}</span><span>${esc(t("updated"))}: ${esc(ago(v.updated_at))}</span></div>
+      ${(()=>{const mine=[...demoFeed,...realFeed].filter(e=>e.agent_id===sel||e.to===sel).slice(0,5);return mine.length?`<div><div class="sub">${esc(t("recent"))}</div><ul class="mini">${mine.map(e=>`<li><span class="t">${esc(hhmm(e.ts))}</span><span>${e.agent_id!==sel?`<b>${esc(nameOf(e.agent_id))}:</b> `:e.to?`→ ${esc(nameOf(e.to))}: `:""}${esc(e.message)}</span></li>`).join("")}</ul></div>`:"";})()}
+      ${(v.responsibilities||[]).length?`<details><summary>${esc(t("jd"))}</summary><ul>${v.responsibilities.map(r=>`<li>${esc(r)}</li>`).join("")}</ul></details>`:""}`;
+  }
+  function hhmm(ts){const d=new Date(ts);return isNaN(d)?"—":d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:false})+(new Date().toDateString()===d.toDateString()?"":" "+d.toLocaleDateString("en-IN",{day:"2-digit",month:"short"}));}
+  function renderFeed(){
+    const items=[...demoFeed,...realFeed];
+    $("feed").innerHTML=items.length?items.map(e=>`<li class="lv-${esc(e.level||"info")}"><span class="t">${esc(hhmm(e.ts))}</span><span class="w">${esc(nameOf(e.agent_id))}${e.to?` <small>→ ${esc(nameOf(e.to))}</small>`:""}${e.demo?`<span class="demo">DEMO</span>`:""}</span><span class="msg">${esc(e.message)}</span></li>`).join("")
+      :`<li><span class="t">—</span><span class="msg">${esc(t("feedEmpty"))}</span></li>`;
+    renderSel();
+  }
+  function renderAppr(){
+    const items=[...demoAppr,...realAppr];
+    $("cAppr").textContent=items.length;$("apprNote").textContent=items.length?t("pendingN",items.length):"";
+    $("approvals").innerHTML=items.length?items.map(a=>`<div class="appr" data-id="${esc(a.id)}"><div style="font-weight:600;font-size:13.5px">${esc(nameOf(a.agent_id))}${a.demo?` <span class="pill s-needs_approval">DEMO</span>`:""}</div><p>${esc(a.title)}</p>${a.detail?`<p style="color:var(--muted)">${esc(a.detail)}</p>`:""}
+      ${(canWrite||a.demo)?`<div class="btns"><button class="pri" data-act="approved" ${a.demo?"disabled":""}>${esc(t("approve"))}</button><button data-act="rejected" ${a.demo?"disabled":""}>${esc(t("reject"))}</button></div>`:""}</div>`).join("")
+      :`<p class="empty">${esc(t("apprEmpty"))}</p>`;
+    const done=allAppr.filter(a=>a.status==="approved"||a.status==="rejected").sort((x,y)=>String(y.decided_at||"").localeCompare(String(x.decided_at||""))).slice(0,5);
+    if(done.length)$("approvals").insertAdjacentHTML("beforeend",`<div class="hist"><div class="sub">${esc(t("decisions"))}</div>${done.map(a=>`<div class="row"><span><b>${esc(nameOf(a.agent_id))}:</b> ${esc(a.title)}</span><span class="pill ${a.status==="approved"?"s-done":"s-error"}">${esc(a.status==="approved"?t("approved"):t("rejected"))}</span></div>`).join("")}</div>`);
+  }
+  function renderRules(){
+    const today=new Date().toDateString(), n=rules.filter(r=>new Date(r.ts).toDateString()===today).length;
+    $("ruleNote").textContent=n?t("todayN",n):"";
+    $("rules").innerHTML=rules.length?rules.slice(0,6).map(r=>`<div class="idea" style="border-left-color:var(--work)"><div class="top"><b>${esc(r.title)}</b>${r.impact?`<span class="pill ${r.impact==="High"?"s-error":r.impact==="Medium"?"s-needs_approval":"s-idle"}">${esc(r.impact)}</span>`:""}</div>
+      ${r.summary?`<p>${esc(r.summary)}</p>`:""}
+      <p style="color:var(--muted);font-size:12.5px">${esc(nameOf(r.agent_id))} · ${esc(hhmm(r.ts))}${r.effective_date?` · ${esc(t("effective"))}: ${esc(r.effective_date)}`:""}${r.source_url&&/^https:\/\//.test(r.source_url)?` · <a href="${esc(r.source_url)}" target="_blank" rel="noopener" style="color:var(--accent)">${esc(t("source"))}</a>`:""}</p></div>`).join("")
+      :`<p class="empty">${esc(t("rulesEmpty"))}</p>`;
+  }
+  function renderIdeas(){
+    const open=ideas.filter(i=>(i.status||"new")==="new"), rest=ideas.filter(i=>i.status&&i.status!=="new").slice(0,3);
+    $("ideaNote").textContent=open.length?t("newN",open.length):"";
+    $("ideas").innerHTML=(open.length||rest.length)?[...open,...rest].map(i=>`<div class="idea" data-id="${esc(i.id)}"><div class="top"><b>${esc(nameOf(i.agent_id))}</b>${i.impact?`<span class="pill s-working">${esc(i.impact)}</span>`:""}</div><p><b>${esc(i.title)}</b></p>${i.detail?`<p style="color:var(--muted)">${esc(i.detail)}</p>`:""}
+      ${(i.status||"new")==="new"?(canWrite?`<div class="btns" style="display:flex;gap:8px"><button class="pri" data-idea="accepted">${esc(t("accept"))}</button><button data-idea="rejected">${esc(t("notNow"))}</button></div>`:""):`<span class="pill ${i.status==="accepted"?"s-done":"s-idle"}" style="justify-self:start">${esc(i.status==="accepted"?t("accepted"):t("notNow"))}</span>`}</div>`).join("")
+      :`<p class="empty">${esc(t("ideasEmpty"))}</p>`;
+  }
+  $("ideas").addEventListener("click",async e=>{
+    const b=e.target.closest("button[data-idea]");if(!b||!db)return;
+    const box=b.closest(".idea");box.querySelectorAll("button").forEach(x=>x.disabled=true);
+    try{await db.doc("ideas/"+box.dataset.id).update({status:b.dataset.idea,decided_at:new Date().toISOString()});}
+    catch(err){box.querySelectorAll("button").forEach(x=>x.disabled=false);box.insertAdjacentHTML("beforeend",`<p style="color:var(--err)">${esc(t("saveFail"))}</p>`);}
+  });
+  $("approvals").addEventListener("click",async e=>{
+    const b=e.target.closest("button[data-act]");if(!b||!db)return;
+    const box=b.closest(".appr");box.querySelectorAll("button").forEach(x=>x.disabled=true);
+    let by=null;try{by=userCap?.id?await userCap.id():null;}catch(e){}
+    try{await db.doc("approvals/"+box.dataset.id).update({status:b.dataset.act,decided_at:new Date().toISOString(),decided_by:by});}
+    catch(err){box.querySelectorAll("button").forEach(x=>x.disabled=false);box.insertAdjacentHTML("beforeend",`<p style="color:var(--err)">${esc(t("saveFail"))}</p>`);}
+  });
+
+  /* ---------- scaling ---------- */
+  const office=$("office"),sizer=$("sizer");
+  function fit(){const w=office.clientWidth;const s=Math.min(1.25,Math.max(0.62,w/1000));stage.style.transform=`scale(${s})`;sizer.style.width=1000*s+"px";sizer.style.height=H*s+"px";}
+  try{new ResizeObserver(fit).observe(office);}catch(e){window.addEventListener("resize",fit);}
+  fit();
+
+  /* ---------- demo (local only, nothing saved) ---------- */
+  $("demoBtn").addEventListener("click",async()=>{
+    if(demoOn||!Object.keys(real).length)return;
+    demoOn=true;$("demoBtn").disabled=true;$("banner").hidden=false;
+    const log=(a,to,m,l)=>{if(!real[a]||(to&&to!=="boss"&&!real[to]))return;demoFeed.unshift({ts:new Date().toISOString(),agent_id:a,to,message:m,level:l||"info",demo:true});renderFeed();};
+    const setO=(id,o)=>{if(!real[id])return;overrides[id]={...(overrides[id]||{}),...o};renderAgents();};
+    const S=(labels,i)=>labels.map((l,k)=>({label:l,state:k<i?"done":k===i?"now":"todo"}));
+    const glSteps=D("steps");
+    const jobs=[];
+    try{
+      sel="gl";
+      log("head","gl",D("assignLog"));
+      jobs.push(talk("head","gl",D("assignSay"),D("assignReply")));
+      await sleep(1200);
+      jobs.push(talk("mis","bank",D("cashSay"),D("cashReply")));
+      log("mis","bank",D("cashLog"));
+      await sleep(4200);
+      setO("gl",{status:"working",current_task:D("recTask"),steps:S(glSteps,0),progress:10,updated_at:new Date().toISOString()});
+      log("gl",null,D("recStart"));
+      setO("bank",{status:"working",current_task:D("cashTask"),progress:30,updated_at:new Date().toISOString()});
+      await sleep(2500);
+      setO("gl",{steps:S(glSteps,1),progress:35});
+      setO("ap",{status:"needs_approval",current_task:D("payTask"),updated_at:new Date().toISOString()});
+      if(real.ap)demoAppr=[{id:"demo1",agent_id:"ap",title:D("payTask"),detail:D("payDetail"),demo:true}];renderAppr();
+      log("ap","boss",D("payLog"),"warn");
+      await sleep(1500);
+      say("ap",D("paySay"));
+      await sleep(2500);
+      setO("gl",{steps:S(glSteps,2),progress:60});
+      setO("bank",{status:"done",progress:100,current_task:D("cashDone")});
+      log("bank","mis",D("cashDoneLog"),"success");
+      jobs.push(talk("audit","gl",D("auditSay"),D("auditReply")));
+      log("audit","gl",D("auditLog"));
+      await sleep(2000);
+      say("tax",D("taxSay"));
+      if(real.tax)rules.unshift({agent_id:"tax",ts:new Date().toISOString(),title:D("ruleTitle"),summary:D("ruleSum"),demo:true,impact:"Medium"});renderRules();
+      log("tax",null,D("taxLog"));
+      await sleep(3500);
+      setO("gl",{steps:S(glSteps,3),progress:85});
+      await sleep(2500);
+      setO("gl",{status:"done",steps:S(glSteps,4),progress:100,current_task:D("recDone")});
+      say("gl",D("recDoneSay"));
+      log("gl",null,D("recDoneLog"),"success");
+      await sleep(2500);
+      log("audit",null,D("auditDoneLog"),"success");
+      setO("gl",{audit_score:100,audit_note:D("auditNote")});
+      if(real.gl)learnings.unshift({agent_id:"gl",ts:new Date().toISOString(),lesson:D("lesson"),demo:true});
+      if(real.gl)ideas.unshift({id:"demoidea",agent_id:"gl",title:D("ideaTitle"),detail:D("ideaDetail"),impact:D("ideaImpact"),status:"new"});renderIdeas();renderSel();
+      say("gl",D("ideaSay"));
+      say("audit",D("auditSay2"));
+      await Promise.all(jobs);
+      await sleep(3500);
+    }finally{
+      overrides={};demoAppr=[];demoFeed=[];demoOn=false;
+      learnings=learnings.filter(l=>!l.demo);rules=rules.filter(r=>!r.demo);renderRules();ideas=ideas.filter(i=>i.id!=="demoidea");renderIdeas();
+      $("demoBtn").disabled=false;$("banner").hidden=true;
+      renderAgents();renderAppr();renderFeed();
+    }
+  });
+
+  /* ---------- team editor & first-time setup ---------- */
+  const DEFAULT_TEAM={"en": {"head": {"name": "Arjun", "role": "Head of Accounts (Manager)", "is_head": true, "order": 0, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Assign and review the team's work", "Send you a daily summary", "Bring items needing approval to you", "Escalate errors and risks"], "expertise": "CFO-level: accounting standards, month-end close, internal controls, risk"}, "gl": {"name": "Meera", "role": "General Ledger & Books", "is_head": false, "order": 1, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Check journal entries", "Ledger reconciliation", "Month-end closing checklist", "Trial balance review"], "expertise": "Senior CA-level bookkeeping, reconciliation, catching trial balance errors"}, "ap": {"name": "Vikram", "role": "Accounts Payable", "is_head": false, "order": 2, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Verify vendor bills (match with PO and GRN)", "Payment due list", "Vendor ledger reconciliation", "Payment proposal for your approval"], "expertise": "3-way match, MSME payment rules, TDS on vendor payments, duplicate bills"}, "ar": {"name": "Priya", "role": "Accounts Receivable & Collections", "is_head": false, "order": 3, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Customer ageing report", "Overdue follow-up drafts", "Match receipts with invoices", "Flag credit limit breaches"], "expertise": "Credit control, ageing, collections, early bad-debt signals"}, "bank": {"name": "Rohan", "role": "Bank & Cash", "is_head": false, "order": 4, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Bank reconciliation (BRS)", "Flag unmatched entries", "Daily cash & bank position", "Petty cash review"], "expertise": "Treasury, BRS, cash-flow forecasting"}, "tax": {"name": "Kavya", "role": "GST & TDS Compliance", "is_head": false, "order": 5, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["GSTR-1 / 3B data", "GSTR-2B vs purchase register matching", "TDS checklist", "Due date reminders"], "expertise": "GST Act, ITC rules, TDS/TCS sections, due dates"}, "payroll": {"name": "Sameer", "role": "Payroll & Expenses", "is_head": false, "order": 6, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Check the salary sheet", "Verify expense claims", "PF / ESI / PT working", "Reimbursement list for approval"], "expertise": "Payroll, PF, ESI, Professional Tax, TDS on salary"}, "mis": {"name": "Neha", "role": "MIS & Reporting", "is_head": false, "order": 7, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Daily MIS", "Monthly P&L, budget vs actual", "Management summary"], "expertise": "FP&A, MIS design, variance analysis"}, "audit": {"name": "Sanjay", "role": "Internal Auditor (reports directly to you)", "is_head": false, "order": 8, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Independent check of every employee's work", "Tick sample entries against source documents", "Flag errors and work done without approval", "Give an audit score"], "expertise": "Internal audit, sampling, vouching, fraud red flags", "is_auditor": true}, "returns": {"name": "Aditya", "role": "Tax Return Filing Specialist", "is_head": false, "order": 9, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["GST returns: GSTR-1, GSTR-3B, GSTR-9, GSTR-9C, CMP-08", "Income Tax: ITR-1 to ITR-7, advance tax, tax audit (Form 3CD) data", "TDS/TCS returns: 24Q, 26Q, 27Q, 27EQ and Form 16/16A", "ROC returns: AOC-4, MGT-7/7A; PF, ESI and Professional Tax returns", "Reconcile data, prepare the draft/JSON and get approval for every return", "Save the acknowledgement number after filing and keep the compliance calendar"], "expertise": "Every tax and statutory return: GST, Income Tax, TDS/TCS, ROC, PF/ESI/PT. Due dates, late fees, interest and notices"}}, "hi": {"head": {"name": "Arjun", "role": "अकाउंट्स हेड (मैनेजर)", "is_head": true, "order": 0, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["टीम को काम देना और रिव्यू करना", "रोज़ शाम आपको सारांश भेजना", "अप्रूवल वाले काम आप तक लाना", "एरर और जोखिम पर एस्केलेट करना"], "expertise": "CFO स्तर: अकाउंटिंग स्टैंडर्ड, महीने का क्लोज़िंग, इंटरनल कंट्रोल, जोखिम"}, "gl": {"name": "Meera", "role": "जनरल लेजर और बुक्स", "is_head": false, "order": 1, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["जर्नल एंट्री जाँचना", "लेजर रिकंसिलिएशन", "महीने के क्लोज़िंग की चेकलिस्ट", "ट्रायल बैलेंस रिव्यू"], "expertise": "सीनियर CA स्तर की बुककीपिंग, रिकंसिलिएशन, ट्रायल बैलेंस की गलतियाँ पकड़ना"}, "ap": {"name": "Vikram", "role": "अकाउंट्स पेयेबल", "is_head": false, "order": 2, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["वेंडर बिल जाँचना (PO और GRN से मिलान)", "पेमेंट ड्यू लिस्ट", "वेंडर लेजर रिकंसिलिएशन", "पेमेंट प्रस्ताव आपके अप्रूवल के लिए"], "expertise": "3-वे मैच, MSME पेमेंट नियम, वेंडर पेमेंट पर TDS, डुप्लिकेट बिल"}, "ar": {"name": "Priya", "role": "अकाउंट्स रिसीवेबल और वसूली", "is_head": false, "order": 3, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["ग्राहक एजिंग रिपोर्ट", "ओवरड्यू फ़ॉलो-अप ड्राफ़्ट", "रसीदों को इनवॉइस से मिलाना", "क्रेडिट लिमिट पार होने पर फ़्लैग"], "expertise": "क्रेडिट कंट्रोल, एजिंग, वसूली, बैड-डेट के शुरुआती संकेत"}, "bank": {"name": "Rohan", "role": "बैंक और कैश", "is_head": false, "order": 4, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["बैंक रिकंसिलिएशन (BRS)", "बिना मिलान वाली एंट्री फ़्लैग करना", "रोज़ की कैश और बैंक पोज़िशन", "पेटी कैश रिव्यू"], "expertise": "ट्रेज़री, BRS, कैश-फ़्लो अनुमान"}, "tax": {"name": "Kavya", "role": "GST और TDS कंप्लायंस", "is_head": false, "order": 5, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["GSTR-1 / 3B डेटा", "GSTR-2B और परचेज़ रजिस्टर का मिलान", "TDS चेकलिस्ट", "ड्यू डेट रिमाइंडर"], "expertise": "GST एक्ट, ITC नियम, TDS/TCS सेक्शन, ड्यू डेट"}, "payroll": {"name": "Sameer", "role": "पेरोल और खर्च", "is_head": false, "order": 6, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["सैलरी शीट जाँचना", "खर्च के क्लेम जाँचना", "PF / ESI / PT की गणना", "रीइम्बर्समेंट लिस्ट अप्रूवल के लिए"], "expertise": "पेरोल, PF, ESI, प्रोफ़ेशनल टैक्स, सैलरी पर TDS"}, "mis": {"name": "Neha", "role": "MIS और रिपोर्टिंग", "is_head": false, "order": 7, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["रोज़ का MIS", "मासिक P&L, बजट बनाम वास्तविक", "मैनेजमेंट सारांश"], "expertise": "FP&A, MIS डिज़ाइन, वेरिएंस विश्लेषण"}, "audit": {"name": "Sanjay", "role": "इंटरनल ऑडिटर (सीधे आपको रिपोर्ट)", "is_head": false, "order": 8, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["हर कर्मचारी के काम की स्वतंत्र जाँच", "सैंपल एंट्री को स्रोत दस्तावेज़ से मिलाना", "गलती और बिना अप्रूवल वाले काम को फ़्लैग करना", "ऑडिट स्कोर देना"], "expertise": "इंटरनल ऑडिट, सैंपलिंग, वाउचिंग, धोखाधड़ी के संकेत", "is_auditor": true}, "returns": {"name": "Aditya", "role": "टैक्स रिटर्न फ़ाइलिंग विशेषज्ञ", "is_head": false, "order": 9, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["GST रिटर्न: GSTR-1, GSTR-3B, GSTR-9, GSTR-9C, CMP-08", "इनकम टैक्स: ITR-1 से ITR-7, एडवांस टैक्स, टैक्स ऑडिट (फ़ॉर्म 3CD) डेटा", "TDS/TCS रिटर्न: 24Q, 26Q, 27Q, 27EQ और फ़ॉर्म 16/16A", "ROC रिटर्न: AOC-4, MGT-7/7A; PF, ESI और प्रोफ़ेशनल टैक्स रिटर्न", "हर रिटर्न का डेटा मिलाकर ड्राफ़्ट/JSON तैयार करना और अप्रूवल लेना", "फ़ाइलिंग के बाद एक्नॉलेजमेंट नंबर सेव करना और कंप्लायंस कैलेंडर रखना"], "expertise": "हर तरह के टैक्स और स्टैच्युटरी रिटर्न: GST, इनकम टैक्स, TDS/TCS, ROC, PF/ESI/PT। ड्यू डेट, लेट फ़ीस, ब्याज और नोटिस"}}, "hn": {"head": {"name": "Arjun", "role": "Head of Accounts (Manager)", "is_head": true, "order": 0, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Team ko kaam assign aur review karna", "Roz shaam summary dena", "Approval wale kaam aap tak lana", "Errors par escalate karna"], "expertise": "CFO-level: accounting standards, month-end close, internal controls, risk"}, "gl": {"name": "Meera", "role": "General Ledger & Books", "is_head": false, "order": 1, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Journal entries check karna", "Ledger reconciliation", "Month-end closing checklist", "Trial balance review"], "expertise": "Senior CA-level bookkeeping, reconciliation, trial balance errors"}, "ap": {"name": "Vikram", "role": "Accounts Payable", "is_head": false, "order": 2, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Vendor bills verify karna (PO/GRN match)", "Payment due list", "Vendor ledger reconciliation", "Payment proposal approval ke liye"], "expertise": "3-way match, MSME payment rules, TDS on vendor payments, duplicate bills"}, "ar": {"name": "Priya", "role": "Accounts Receivable & Collections", "is_head": false, "order": 3, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Customer ageing report", "Overdue follow-up drafts", "Receipts ko invoices se match karna", "Credit limit breach flag"], "expertise": "Credit control, ageing, collections, bad-debt signals"}, "bank": {"name": "Rohan", "role": "Bank & Cash", "is_head": false, "order": 4, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["BRS banana", "Unmatched entries flag karna", "Daily cash & bank position", "Petty cash review"], "expertise": "Treasury, BRS, cash-flow forecasting"}, "tax": {"name": "Kavya", "role": "GST & TDS Compliance", "is_head": false, "order": 5, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["GSTR-1/3B data", "GSTR-2B vs purchase matching", "TDS checklist", "Due date reminders"], "expertise": "GST Act, ITC rules, TDS/TCS sections, due dates"}, "payroll": {"name": "Sameer", "role": "Payroll & Expenses", "is_head": false, "order": 6, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Salary sheet check", "Expense claims verify", "PF/ESI/PT working", "Reimbursement list approval ke liye"], "expertise": "Payroll, PF, ESI, PT, TDS on salary"}, "mis": {"name": "Neha", "role": "MIS & Reporting", "is_head": false, "order": 7, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Daily MIS", "Monthly P&L, budget vs actual", "Management summary"], "expertise": "FP&A, MIS design, variance analysis"}, "audit": {"name": "Sanjay", "role": "Internal Auditor (seedha aapko report)", "is_head": false, "order": 8, "is_auditor": true, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["Har agent ke kaam ka independent check", "Sample entries source se tick karna", "Galti aur bina approval wala kaam flag karna", "Audit score dena"], "expertise": "Internal audit, sampling, vouching, fraud red flags"}, "returns": {"name": "Aditya", "role": "Tax Return Filing Specialist", "is_head": false, "order": 9, "status": "onboarding", "current_task": "", "schedule": "not set", "responsibilities": ["GST returns: GSTR-1, GSTR-3B, GSTR-9, GSTR-9C, CMP-08 ki taiyari", "Income Tax: ITR-1 se ITR-7, advance tax, tax audit (Form 3CD) ka data", "TDS/TCS returns: 24Q, 26Q, 27Q, 27EQ aur Form 16/16A", "ROC returns: AOC-4, MGT-7/7A; PF, ESI aur Professional Tax returns", "Har return ka data reconcile karke draft/JSON taiyar karna aur approval lena", "Filing ke baad acknowledgement number save karna aur compliance calendar update karna"], "expertise": "Har tarah ke tax aur statutory returns: GST, Income Tax, TDS/TCS, ROC, PF/ESI/PT. Due dates, late fee, interest aur notices se bachaav"}}};
+  let config={};
+  function applyConfig(){
+    $("coName").textContent=config.company_name||t("company");
+    $("deptName").textContent=config.department||t("dept");
+    if(ownerLbl)ownerLbl.textContent=(config.owner_name||t("owner"))+" "+t("you");
+    document.title=(config.company_name?config.company_name+" · ":"")+"World Class Accounts Team";
+  }
+  const ed=$("editor");
+  function fld(label,id,val,kind){
+    const v=esc(val??"");
+    const input=kind==="area"?`<textarea id="${id}">${v}</textarea>`:`<input id="${id}" type="text" value="${v}" autocomplete="off">`;
+    return `<label class="fld" for="${id}">${esc(label)}${input}</label>`;
+  }
+  function openSetup(){
+    ed.hidden=false;
+    ed.innerHTML=`<div class="sechead"><h2>${esc(t("setupH"))}</h2></div>
+      <p class="empty">${esc(t("setupP"))}</p>
+      <div class="edbar"><button class="pri" id="seedBtn" type="button">${esc(t("seedBtn"))}</button><span id="seedMsg" class="empty"></span></div>`;
+    $("seedBtn").addEventListener("click",async()=>{
+      $("seedBtn").disabled=true;$("seedMsg").textContent=t("seeding");
+      try{
+        for(const [id,d] of Object.entries(DEFAULT_TEAM[LANG]||DEFAULT_TEAM.en)){await db.doc("agents/"+id).set({...d,updated_at:new Date().toISOString()});}
+        $("seedMsg").textContent=t("seeded");
+        setTimeout(openEditor,600);
+      }catch(e){$("seedBtn").disabled=false;$("seedMsg").textContent=t("seedFail");}
+    });
+  }
+  function edCard(id,v,isNew){
+    const lk=typeof v.look==="number"?v.look:(LOOKS.findIndex(l=>l[0]===id)>=0?LOOKS.findIndex(l=>l[0]===id):Math.abs(v.order||0)%LOOKS.length);
+    const seat=v.is_head?"head":isAuditDoc(id,v)?"audit":"normal";
+    return `<fieldset class="edcard" data-id="${esc(id)}" ${isNew?'data-new="1"':""}><legend>${isNew?esc(t("newEmp")):esc(v.name||id)}</legend>
+      ${fld(t("fName"),"ed-"+id+"-name",v.name)}
+      ${fld(t("fRole"),"ed-"+id+"-role",v.role)}
+      <div class="edgrid" style="grid-template-columns:1fr 1fr;gap:8px">
+        <label class="fld" for="ed-${esc(id)}-look">${esc(t("fLook"))}<select id="ed-${esc(id)}-look">${LOOKS.map((l,i)=>`<option value="${i}" ${i===lk?"selected":""}>${esc(t("looks")[i])}</option>`).join("")}</select></label>
+        <label class="fld" for="ed-${esc(id)}-seat">${esc(t("fSeat"))}<select id="ed-${esc(id)}-seat"><option value="normal" ${seat==="normal"?"selected":""}>${esc(t("seatNormal"))}</option><option value="head" ${seat==="head"?"selected":""}>${esc(t("seatHead"))}</option><option value="audit" ${seat==="audit"?"selected":""}>${esc(t("seatAudit"))}</option></select></label>
+      </div>
+      ${fld(t("fExp"),"ed-"+id+"-exp",v.expertise,"area")}
+      ${fld(t("fJd"),"ed-"+id+"-jd",(v.responsibilities||[]).join("\n"),"area")}
+      <div class="edbar"><button type="button" class="delBtn">${esc(isNew?t("delCard"):t("delEmp"))}</button><span class="empty delNote"></span></div>
+    </fieldset>`;
+  }
+  function openEditor(){
+    const ids=Object.keys(real).sort((x,y)=>(real[x].order??99)-(real[y].order??99));
+    ed.hidden=false;
+    ed.innerHTML=`<div class="sechead"><h2>${esc(t("edH"))}</h2><button type="button" id="edClose">${esc(t("close"))}</button></div>
+      <div class="edgrid">${fld(t("fCompany"),"cfg-company",config.company_name)}${fld(t("fDept"),"cfg-dept",config.department)}${fld(t("fOwner"),"cfg-owner",config.owner_name)}</div>
+      <div class="edbar"><button type="button" id="edAdd">${esc(t("addEmp"))}</button><span class="empty">${esc(t("addHint"))}</span></div>
+      <div class="edgrid" id="edCards">${ids.map(id=>edCard(id,real[id],false)).join("")}</div>
+      <div class="edbar"><button class="pri" type="button" id="edSave">${esc(t("save"))}</button><span id="edMsg" class="empty"></span></div>`;
+    $("edClose").addEventListener("click",()=>{ed.hidden=true;ed.innerHTML="";});
+    $("edAdd").addEventListener("click",()=>{
+      const id="e"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+      $("edCards").insertAdjacentHTML("beforeend",edCard(id,{name:"",role:"",expertise:"",responsibilities:[],order:Object.keys(real).length+$("edCards").querySelectorAll(".edcard[data-new]").length},true));
+      const c=$("edCards").lastElementChild;c.scrollIntoView({behavior:"smooth",block:"center"});$("ed-"+id+"-name").focus();
+    });
+    $("edCards").addEventListener("click",e=>{
+      const b=e.target.closest(".delBtn");if(!b)return;
+      const card=b.closest(".edcard");
+      if(card.dataset.new){card.remove();return;}
+      const on=card.dataset.del!=="1";card.dataset.del=on?"1":"";
+      card.style.opacity=on?".55":"";
+      b.textContent=on?t("undo"):t("delEmp");
+      card.querySelector(".delNote").textContent=on?t("delNote"):"";
+    });
+    $("edSave").addEventListener("click",async()=>{
+      const btn=$("edSave");btn.disabled=true;$("edMsg").textContent=t("saving");
+      try{
+        const cfg={company_name:$("cfg-company").value.trim(),department:$("cfg-dept").value.trim(),owner_name:$("cfg-owner").value.trim()};
+        if(JSON.stringify(cfg)!==JSON.stringify({company_name:config.company_name||"",department:config.department||"",owner_name:config.owner_name||""}))await db.doc("config/office").set(cfg);
+        const cards=[...$("edCards").querySelectorAll(".edcard")];
+        let maxOrder=Math.max(-1,...Object.values(real).map(v=>v.order??0));
+        let skipped=0;
+        for(const card of cards){
+          const id=card.dataset.id,g=k=>$("ed-"+id+"-"+k);
+          if(card.dataset.del==="1"){await db.doc("agents/"+id).delete();card.remove();continue;}
+          const name=g("name").value.trim();
+          if(card.dataset.new&&!name){skipped++;continue;}
+          const seat=g("seat").value;
+          const next={name:name||real[id]?.name||id,role:g("role").value.trim(),look:Number(g("look").value),expertise:g("exp").value.trim(),
+            responsibilities:g("jd").value.split("\n").map(x=>x.trim()).filter(Boolean),is_head:seat==="head",is_auditor:seat==="audit"};
+          if(card.dataset.new){
+            await db.doc("agents/"+id).set({...next,order:++maxOrder,status:"onboarding",current_task:"",schedule:"not set",updated_at:new Date().toISOString()});
+            delete card.dataset.new;card.querySelector("legend").textContent=next.name;card.querySelector(".delBtn").textContent=t("delEmp");
+            continue;
+          }
+          const v=real[id]||{};
+          const cur={name:v.name,role:v.role,look:typeof v.look==="number"?v.look:Number(g("look").defaultValue??g("look").value),expertise:v.expertise||"",responsibilities:v.responsibilities||[],is_head:v.is_head===true,is_auditor:isAuditDoc(id,v)};
+          if(JSON.stringify(next)!==JSON.stringify(cur))await db.doc("agents/"+id).update(next);
+        }
+        $("edMsg").textContent=skipped?t("savedSkip"):t("saved");
+      }catch(e){$("edMsg").textContent=t("saveFail");}
+      btn.disabled=false;
+    });
+    ed.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  $("editBtn").addEventListener("click",()=>{ed.hidden?openEditor():(ed.hidden=true,ed.innerHTML="");});
+
+  /* ---------- language ---------- */
+  let liveKey="connecting",liveOn=false;
+  function applyLang(){
+    document.documentElement.lang=LANG==="hi"?"hi":"en";
+    document.querySelectorAll("[data-i18n]").forEach(e=>{e.textContent=t(e.dataset.i18n);});
+    document.querySelectorAll(".langsw button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===LANG)));
+    FL.cabin.textContent=t("cabin");FL.audit.textContent=t("auditRoom");FL.floor.textContent=t("floor");FL.chai.textContent=t("chai");
+    $("liveTxt").textContent=t(liveKey);
+    applyConfig();renderAgents();renderFeed();renderAppr();renderRules();renderIdeas();renderSel();
+    if(!ed.hidden){if(ed.querySelector("#seedBtn"))openSetup();else if(ed.querySelector("#edSave"))openEditor();}
+  }
+  document.querySelector(".langsw").addEventListener("click",e=>{const b=e.target.closest("button[data-lang]");if(!b||b.dataset.lang===LANG)return;LANG=b.dataset.lang;try{localStorage.setItem("wcat-lang",LANG);}catch(e){}applyLang();});
+  applyLang();
+
+  /* ---------- live data ---------- */
+  function setLive(on,key){liveOn=on;liveKey=key;$("live").classList.toggle("on",on);$("liveTxt").textContent=t(key);}
+  renderFeed();
+  (async()=>{
+    db=await(window.claude?.use?.("db")??null);
+    if(!db){setLive(false,"noDb");return;}
+    try{userCap=await window.claude.use("user");canWrite=userCap?.canEdit?.()??false;}catch(e){}
+    const timer=setTimeout(()=>setLive(false,"slow"),10000);
+    const fail=()=>{clearTimeout(timer);setLive(false,"broken");};
+    $("editBtn").hidden=!canWrite;
+    db.doc("config/office").onSnapshot(d=>{config=d.exists?d.data():{};applyConfig();},fail);
+    db.collection("agents").onSnapshot(s=>{
+      real={};s.docs.forEach(d=>real[d.id]=d.data());renderAgents();
+      if(!s.metadata?.fromCache){clearTimeout(timer);setLive(true,"liveOn");
+        if(s.empty&&canWrite&&ed.hidden)openSetup();
+        else if(!s.empty&&ed.querySelector("#seedBtn")&&!ed.querySelector("#seedMsg").textContent){ed.hidden=true;ed.innerHTML="";}}
+    },fail);
+    const seen=new Set();let primed=false;
+    db.collection("activity").orderBy("ts","desc").limit(40).onSnapshot(s=>{
+      realFeed=s.docs.map(d=>d.data());renderFeed();
+      const fresh=[];
+      s.docs.forEach(d=>{if(seen.has(d.id))return;seen.add(d.id);const e=d.data();
+        if(primed&&Date.now()-new Date(e.ts).getTime()<120000)fresh.push(e);});
+      primed=true;
+      fresh.reverse().forEach(e=>{if(!chars[e.agent_id])return;
+        if(e.to&&(chars[e.to]||e.to==="boss"))talk(e.agent_id,e.to,e.message,e.reply);else say(e.agent_id,e.message);});
+    },fail);
+    db.collection("approvals").orderBy("created_at","desc").limit(50).onSnapshot(s=>{
+      allAppr=s.docs.map(d=>({id:d.id,...d.data()}));realAppr=allAppr.filter(a=>a.status==="pending");renderAppr();renderAgents();
+    },fail);
+    db.collection("rules").orderBy("ts","desc").limit(30).onSnapshot(s=>{rules=s.docs.map(d=>d.data());renderRules();},fail);
+    db.collection("ideas").orderBy("created_at","desc").limit(30).onSnapshot(s=>{ideas=s.docs.map(d=>({id:d.id,...d.data()}));renderIdeas();},fail);
+    db.collection("learnings").orderBy("ts","desc").limit(300).onSnapshot(s=>{learnings=s.docs.map(d=>d.data());renderSel();},fail);
+    setInterval(()=>{if(Object.keys(real).length)renderAgents();},60000);
+  })();
+})();
+</script>
